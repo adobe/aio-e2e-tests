@@ -9,6 +9,6 @@ install:
   - npm version
   - npm install
 script:
-  - node run.js
+  - npm run all
 after_success:
   - ./node_modules/.bin/codecov
