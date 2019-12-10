@@ -14,6 +14,7 @@ const execa = require('execa')
 const chalk = require('chalk').default
 const repositories = require('../repositories.json')
 const fs = require('fs-extra')
+const auth = require('./auth')
 
 const resDir = '.repos'
 
@@ -34,9 +35,44 @@ function logEnv (vars, toHide) {
   })
 }
 
+async function setDefaultEnvVariables() {
+  const defaultEnv = ["JWT_CLIENTID", "JWT_CLIENT_SECRET", "JWT_PRIVATE_KEY",
+  "JWT_ORG_ID", "JWT_TECH_ACC_ID", "OAUTH_TOKEN_ACTION_URL"]
+  const validation = checkEnv(defaultEnv)
+  if (!validation.ok) throw new Error(`Missing Default env var(s): ${chalk.bold(validation.missing.toString())}`)
+
+  let args = {
+    clientId: process.env["JWT_CLIENTID"],
+    technicalAccountId: process.env["JWT_TECH_ACC_ID"],
+    orgId: process.env["JWT_ORG_ID"],
+    clientSecret: process.env["JWT_CLIENT_SECRET"],
+    privateKey: process.env["JWT_PRIVATE_KEY"]
+  }
+  const jwt_token = await auth.getJWTToken(args)
+  process.env["JWT_TOKEN"] = jwt_token.access_token
+
+  const oauth_token = await auth.getOauthToken(process.env["OAUTH_TOKEN_ACTION_URL"])
+  process.env["OAUTH_TOKEN"] = oauth_token.access_token
+}
+
+function mapEnvVariables(envMap) {
+  if(envMap) {
+    Object.keys(envMap).forEach(k => {
+      try {
+        process.env[k] = process.env[envMap[k]]
+      } catch (e) {
+        console.error(chalk.red(e))
+        console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
+        failed.push(k)
+      }
+    })
+  }
+}
+
 function runOne (name, params) {
   console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(params.repository)}, branch: ${chalk.bold(params.branch)}`))
-
+  console.log(chalk.dim(`mapping env variables..`))
+  mapEnvVariables(params.mapEnv)
   console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
   const validation = checkEnv(params.requiredEnv)
   if (!validation.ok) throw new Error(`Missing env var(s): ${chalk.bold(validation.missing.toString())}`)
@@ -63,24 +99,36 @@ function runOne (name, params) {
 /* ************************ RUN ************************ */
 
 // run tests
-console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
-console.log()
-let failed = []
-const startDir = process.cwd()
-fs.emptyDirSync(resDir)
-process.chdir(resDir)
-Object.keys(repositories).forEach(k => {
-  try {
-    runOne(k, repositories[k])
-  } catch (e) {
-    console.error(chalk.red(e))
-    console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
-    failed.push(k)
-  }
-})
-process.chdir(startDir)
+async function runAll()
+{
+  console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
+  console.log()
 
-// success
-console.log()
-if (failed.length === 0) console.log(chalk.green.bold(`-- all e2e tests ran successfully --`))
-else console.log(chalk.red(`-- some test(s) failed: ${chalk.bold(failed.toString())} --`))
+  let failed = []
+  const startDir = process.cwd()
+  fs.emptyDirSync(resDir)
+  process.chdir(resDir)
+  console.log(chalk.dim(`setting default env variables..`))
+  await setDefaultEnvVariables()
+  Object.keys(repositories).forEach(k => {
+    try {
+      runOne(k, repositories[k])
+    } catch (e) {
+      console.error(chalk.red(e))
+      console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
+      failed.push(k)
+    }
+  })
+  process.chdir(startDir)
+
+  // success
+  console.log()
+  if (failed.length === 0) console.log(chalk.green.bold(`-- all e2e tests ran successfully --`))
+  else console.log(chalk.red(`-- some test(s) failed: ${chalk.bold(failed.toString())} --`))
+}
+runAll()
+.then(res => {
+})
+.catch(e => {
+  console.log("Error - " + e)
+})
