@@ -14,7 +14,7 @@ const fetch = require('node-fetch')
 const jwt = require('jsonwebtoken')
 const FormData = require('form-data')
 
-async getOauthToken(actionURL) {
+async function getOauthToken(actionURL) {
   const postOptions = {
     method: 'POST',
   }
@@ -37,8 +37,7 @@ async getOauthToken(actionURL) {
         }
       }
       return json;
-    });
-
+    })
 }
 
 async function getJWTToken(options) {
@@ -131,5 +130,6 @@ async function getJWTToken(options) {
 }
 
 module.exports = {
-  getJWTToken: getJWTToken
+  getJWTToken: getJWTToken,
+  getOauthToken: getOauthToken
 }
