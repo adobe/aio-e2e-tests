@@ -49,10 +49,12 @@ function runOne (name, params) {
   console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
   checkEnv(params.requiredEnv)
 
-  console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(params.mapEnv).toString())}`))
-  mapEnvVariables(params.mapEnv)
+  if (params.mapEnv) {
+    console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(params.mapEnv).map(([k, v]) => k + '->' + v).toString())}`))
+    mapEnvVariables(params.mapEnv)
+  }
 
-  logEnv({ ...params.requiredEnv, ...Object.values(params.mapEnv) }, params.doNotLog)
+  logEnv(params.requiredEnv, params.doNotLog)
 
   console.log(chalk.dim(`    - cloning repo ${chalk.bold(params.repository)}..`))
   execa.sync('git', ['clone', params.repository, name], { stderr: 'inherit' })
@@ -105,7 +107,7 @@ async function runAll () {
     try {
       runOne(k, repositories[k])
     } catch (e) {
-      console.error(chalk.red(e))
+      console.error(e)
       console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
       failed.push(k)
     }
