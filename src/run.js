@@ -46,13 +46,13 @@ function mapEnvVariables (envMap) {
 function runOne (name, params) {
   console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(params.repository)}, branch: ${chalk.bold(params.branch)}`))
 
-  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
-  checkEnv(params.requiredEnv)
-
   if (params.mapEnv) {
     console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(params.mapEnv).map(([k, v]) => k + '->' + v).toString())}`))
     mapEnvVariables(params.mapEnv)
   }
+
+  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
+  checkEnv(params.requiredEnv)
 
   logEnv(params.requiredEnv, params.doNotLog)
 
@@ -84,6 +84,7 @@ async function runAll () {
   const testsWithJwt = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'jwt').map(([k, v]) => k)
   if (testsWithJwt.length > 0) {
     const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
+
     console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
     checkEnv(jwtVars)
     const jwtToken = await auth.getJWTToken({
