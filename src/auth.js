@@ -10,37 +10,31 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+/* eslint-disable camelcase */
+
 const fetch = require('node-fetch')
 const jwt = require('jsonwebtoken')
 const FormData = require('form-data')
 
-async function getOauthToken(actionURL) {
+async function getOauthToken (actionURL) {
   const postOptions = {
-    method: 'POST',
+    method: 'POST'
   }
 
-  return fetch(actionURL, postOptions)
-    .then(res => res.json())
-    .then(json => {
-      const { access_token, error, error_description } = json;
-      if (!access_token) {
-        if (error && error_description) {
-          return Promise.reject(new Error(`${error}: ${error_description}`));
-        } else {
-          return Promise.reject(
-            new Error(
-              `An unknown error occurred fetching oauth token. The response is as follows: ${JSON.stringify(
-                json
-              )}`
-            )
-          );
-        }
-      }
-      return json;
-    })
+  const res = await fetch(actionURL, postOptions)
+  const json = await res.json()
+  const { access_token, error, error_description } = json
+  if (!access_token) {
+    if (error && error_description) {
+      return Promise.reject(new Error(`${error}: ${error_description}`))
+    } else {
+      throw new Error(`An unknown error occurred fetching oauth token. The response is as follows: ${JSON.stringify(json)}`)
+    }
+  }
+  return json
 }
 
-async function getJWTToken(options) {
+async function getJWTToken (options) {
   let {
     clientId,
     technicalAccountId,
@@ -49,26 +43,24 @@ async function getJWTToken(options) {
     privateKey,
     passphrase = '',
     metaScopes = [
-      "https://ims-na1.adobelogin.com/s/ent_campaign_sdk",
-      "https://ims-na1.adobelogin.com/s/ent_marketing_sdk"],
+      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_marketing_sdk'],
     ims = 'https://ims-na1.adobelogin.com'
-  } = options;
+  } = options
 
-  const errors = [];
-  !clientId ? errors.push('clientId') : '';
-  !technicalAccountId ? errors.push('technicalAccountId') : '';
-  !orgId ? errors.push('orgId') : '';
-  !clientSecret ? errors.push('clientSecret') : '';
-  !privateKey ? errors.push('privateKey') : '';
-  !metaScopes || metaScopes.length === 0 ? errors.push('metaScopes') : '';
+  const errors = []
+  if (!clientId) errors.push('clientId')
+  if (!technicalAccountId) errors.push('technicalAccountId')
+  if (!orgId) errors.push('orgId')
+  if (!clientSecret) errors.push('clientSecret')
+  if (!privateKey)errors.push('privateKey')
+  if (!metaScopes || metaScopes.length === 0) errors.push('metaScopes')
   if (errors.length > 0) {
-    return Promise.reject(
-      new Error(`Required parameter(s) ${errors.join(', ')} are missing`)
-    );
+    throw new Error(`Required parameter(s) ${errors.join(', ')} are missing`)
   }
 
   if (metaScopes.constructor !== Array) {
-    metaScopes = metaScopes.split(',');
+    metaScopes = metaScopes.split(',')
   }
 
   const jwtPayload = {
@@ -76,57 +68,49 @@ async function getJWTToken(options) {
     iss: orgId,
     sub: technicalAccountId,
     aud: `${ims}/c/${clientId}`
-  };
+  }
 
   for (let i = 0; i < metaScopes.length; i++) {
     if (metaScopes[i].indexOf('https') > -1) {
-      jwtPayload[metaScopes[i]] = true;
+      jwtPayload[metaScopes[i]] = true
     } else {
-      jwtPayload[`${ims}/s/${metaScopes[i]}`] = true;
+      jwtPayload[`${ims}/s/${metaScopes[i]}`] = true
     }
   }
 
-  let token;
+  let token
   try {
     token = jwt.sign(
       jwtPayload,
       { key: privateKey, passphrase },
       { algorithm: 'RS256' }
-    );
+    )
   } catch (tokenError) {
-    return Promise.reject(tokenError);
+    return Promise.reject(tokenError)
   }
 
-  const form = new FormData();
-  form.append('client_id', clientId);
-  form.append('client_secret', clientSecret);
-  form.append('jwt_token', token);
+  const form = new FormData()
+  form.append('client_id', clientId)
+  form.append('client_secret', clientSecret)
+  form.append('jwt_token', token)
 
   const postOptions = {
     method: 'POST',
     body: form,
     headers: form.getHeaders()
-  };
+  }
 
-  return fetch(`${ims}/ims/exchange/jwt/`, postOptions)
-    .then(res => res.json())
-    .then(json => {
-      const { access_token, error, error_description } = json;
-      if (!access_token) {
-        if (error && error_description) {
-          return Promise.reject(new Error(`${error}: ${error_description}`));
-        } else {
-          return Promise.reject(
-            new Error(
-              `An unknown error occurred while swapping jwt. The response is as follows: ${JSON.stringify(
-                json
-              )}`
-            )
-          );
-        }
-      }
-      return json;
-    });
+  const res = await fetch(`${ims}/ims/exchange/jwt/`, postOptions)
+  const json = await res.json()
+  const { access_token, error, error_description } = json
+  if (!access_token) {
+    if (error && error_description) {
+      throw new Error(`${error}: ${error_description}`)
+    } else {
+      throw new Error(`An unknown error occurred while swapping jwt. The response is as follows: ${JSON.stringify(json)}`)
+    }
+  }
+  return json
 }
 
 module.exports = {

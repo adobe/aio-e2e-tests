@@ -24,92 +24,83 @@ function checkEnv (vars) {
   vars.forEach(v => {
     if (!process.env[v]) missing.push(v)
   })
-  return { ok: missing.length === 0, missing }
+  if (missing.length > 0) throw new Error(`Missing env var(s): ${chalk.bold(missing.toString())}`)
 }
 
 function logEnv (vars, toHide) {
   const toHideSet = new Set(toHide)
   vars.forEach(v => {
-    const str = toHideSet.has(v) ? '<hidden>': process.env[v]
+    const str = toHideSet.has(v) ? '<hidden>' : process.env[v]
     console.log(`${v}=${str}`)
   })
 }
 
-async function setDefaultEnvVariables() {
-  const defaultEnv = ["JWT_CLIENTID", "JWT_CLIENT_SECRET", "JWT_PRIVATE_KEY",
-  "JWT_ORG_ID", "JWT_TECH_ACC_ID", "OAUTH_TOKEN_ACTION_URL"]
-  const validation = checkEnv(defaultEnv)
-  if (!validation.ok) throw new Error(`Missing Default env var(s): ${chalk.bold(validation.missing.toString())}`)
-
-  let args = {
-    clientId: process.env["JWT_CLIENTID"],
-    technicalAccountId: process.env["JWT_TECH_ACC_ID"],
-    orgId: process.env["JWT_ORG_ID"],
-    clientSecret: process.env["JWT_CLIENT_SECRET"],
-    privateKey: process.env["JWT_PRIVATE_KEY"]
-  }
-  const jwt_token = await auth.getJWTToken(args)
-  process.env["JWT_TOKEN"] = jwt_token.access_token
-
-  const oauth_token = await auth.getOauthToken(process.env["OAUTH_TOKEN_ACTION_URL"])
-  process.env["OAUTH_TOKEN"] = oauth_token.access_token
-}
-
-function mapEnvVariables(envMap) {
-  if(envMap) {
+function mapEnvVariables (envMap) {
+  if (envMap) {
     Object.keys(envMap).forEach(k => {
-      try {
-        process.env[k] = process.env[envMap[k]]
-      } catch (e) {
-        console.error(chalk.red(e))
-        console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
-        failed.push(k)
-      }
+      process.env[envMap[k]] = process.env[k]
     })
   }
 }
 
 function runOne (name, params) {
   console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(params.repository)}, branch: ${chalk.bold(params.branch)}`))
-  console.log(chalk.dim(`mapping env variables..`))
-  mapEnvVariables(params.mapEnv)
-  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
-  const validation = checkEnv(params.requiredEnv)
-  if (!validation.ok) throw new Error(`Missing env var(s): ${chalk.bold(validation.missing.toString())}`)
 
-  const doNotLogSet = new Set(params.doNotLog)
-  logEnv(params.requiredEnv, params.doNotLog)
+  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
+  checkEnv(params.requiredEnv)
+
+  console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(params.mapEnv).toString())}`))
+  mapEnvVariables(params.mapEnv)
+
+  logEnv({ ...params.requiredEnv, ...Object.values(params.mapEnv) }, params.doNotLog)
 
   console.log(chalk.dim(`    - cloning repo ${chalk.bold(params.repository)}..`))
   execa.sync('git', ['clone', params.repository, name], { stderr: 'inherit' })
   process.chdir(name)
   console.log(chalk.dim(`    - checking out branch ${chalk.bold(params.branch)}..`))
   execa.sync('git', ['checkout', params.branch], { stderr: 'inherit' })
-  console.log(chalk.dim(`    - installing npm packages..`))
+  console.log(chalk.dim('    - installing npm packages..'))
   execa.sync('npm', ['install'], { stderr: 'inherit' })
-  console.log(chalk.bold(`    - running tests..`))
+  console.log(chalk.bold('    - running tests..'))
   execa.sync('npm', ['run', 'e2e'], { stderr: 'inherit' })
   process.chdir('..')
   console.log(chalk.green(`    - done for ${chalk.bold(name)}`))
 }
 
-
-
-
 /* ************************ RUN ************************ */
 
 // run tests
-async function runAll()
-{
+async function runAll () {
   console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
   console.log()
 
-  let failed = []
+  const failed = []
   const startDir = process.cwd()
   fs.emptyDirSync(resDir)
   process.chdir(resDir)
-  console.log(chalk.dim(`setting default env variables..`))
-  await setDefaultEnvVariables()
+
+  const testsWithJwt = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'jwt').map(([k, v]) => k)
+  if (testsWithJwt.length > 0) {
+    const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
+    console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
+    checkEnv(jwtVars)
+    const jwtToken = await auth.getJWTToken({
+      clientId: process.env.JWT_CLIENTID,
+      technicalAccountId: process.env.JWT_TECH_ACC_ID,
+      orgId: process.env.JWT_ORG_ID,
+      clientSecret: process.env.JWT_CLIENT_SECRET,
+      privateKey: process.env.JWT_PRIVATE_KEY
+    })
+    process.env.JWT_TOKEN = jwtToken.access_token
+  }
+  const testsWithOauth = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'oauth').map(([k, v]) => k)
+  if (testsWithOauth.length > 0) {
+    console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
+    checkEnv([process.env.OAUTH_TOKEN_ACTION_URL])
+    const oauthToken = await auth.getOauthToken(process.env.OAUTH_TOKEN_ACTION_URL)
+    process.env.OAUTH_TOKEN = oauthToken.access_token
+  }
+
   Object.keys(repositories).forEach(k => {
     try {
       runOne(k, repositories[k])
@@ -123,12 +114,9 @@ async function runAll()
 
   // success
   console.log()
-  if (failed.length === 0) console.log(chalk.green.bold(`-- all e2e tests ran successfully --`))
+  if (failed.length === 0) console.log(chalk.green.bold('-- all e2e tests ran successfully --'))
   else console.log(chalk.red(`-- some test(s) failed: ${chalk.bold(failed.toString())} --`))
 }
+
 runAll()
-.then(res => {
-})
-.catch(e => {
-  console.log("Error - " + e)
-})
+  .catch(e => console.error(e))
