@@ -15,7 +15,9 @@ Each tested repository has its own requirements, mostly environment variables to
 - [@adobe/aio-lib-state](https://github.com/adobe/aio-lib-state/blob/master/e2e/e2e.md)
 - [@adobe/aio-lib-files](https://github.com/adobe/aio-lib-files/blob/master/e2e/e2e.md)
 - [@adobe/aio-lib-core-tvm](https://github.com/adobe/aio-lib-core-tvm/blob/master/e2e/e2e.md)
-- *more to be added*
+- [@adobe/aio-lib-analytics](https://github.com/adobe/aio-lib-analytics/blob/master/e2e/e2e.js)
+- [@adobe/aio-lib-target](https://github.com/adobe/aio-lib-target/blob/master/e2e/e2e.js)
+- [@adobe/aio-lib-campaign-standard](https://github.com/adobe/aio-lib-campaign-standard/tree/master/e2e)
 
 ## Add a new e2e test
 
