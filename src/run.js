@@ -98,7 +98,7 @@ async function runAll () {
   const testsWithOauth = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'oauth').map(([k, v]) => k)
   if (testsWithOauth.length > 0) {
     console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
-    checkEnv([process.env.OAUTH_TOKEN_ACTION_URL])
+    checkEnv(['OAUTH_TOKEN_ACTION_URL', 'OAUTH_CLIENTID'])
     const oauthToken = await auth.getOauthToken(process.env.OAUTH_TOKEN_ACTION_URL)
     process.env.OAUTH_TOKEN = oauthToken.access_token
   }
