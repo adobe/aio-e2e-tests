@@ -26,7 +26,7 @@ async function getOauthToken (actionURL) {
   const { access_token, error, error_description } = json
   if (!access_token) {
     if (error && error_description) {
-      return Promise.reject(new Error(`${error}: ${error_description}`))
+      throw new Error(`${error}: ${error_description}`)
     } else {
       throw new Error(`An unknown error occurred fetching oauth token. The response is as follows: ${JSON.stringify(json)}`)
     }
@@ -78,16 +78,11 @@ async function getJWTToken (options) {
     }
   }
 
-  let token
-  try {
-    token = jwt.sign(
-      jwtPayload,
-      { key: privateKey, passphrase },
-      { algorithm: 'RS256' }
-    )
-  } catch (tokenError) {
-    return Promise.reject(tokenError)
-  }
+  const token = jwt.sign(
+    jwtPayload,
+    { key: privateKey, passphrase },
+    { algorithm: 'RS256' }
+  )
 
   const form = new FormData()
   form.append('client_id', clientId)
