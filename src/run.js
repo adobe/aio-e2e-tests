@@ -15,6 +15,7 @@ const chalk = require('chalk').default
 const repositories = require('../repositories.json')
 const fs = require('fs-extra')
 const auth = require('./auth')
+const path = require('path')
 
 const resDir = '.repos'
 
@@ -86,6 +87,19 @@ async function runAll () {
     const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
 
     console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
+    if(! process.env.JWT_PRIVATE_KEY) {
+      console.log("no private key set in env")
+      const private_key_file = path.join(startDir, "private.key")
+      if(fs.existsSync(private_key_file)) {
+        //file will exist only in travis env
+        console.log("found travis key file")
+        const pKey = fs.readFileSync(private_key_file)
+        process.env.JWT_PRIVATE_KEY = pKey
+      }
+      else {
+        console.log("no travis key file found")
+      }
+    }
     checkEnv(jwtVars)
     const jwtToken = await auth.getJWTToken({
       clientId: process.env.JWT_CLIENTID,
