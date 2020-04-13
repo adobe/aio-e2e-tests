@@ -101,6 +101,7 @@ async function runAll () {
       }
     }
     checkEnv(jwtVars)
+    console.log("All required JWT env are present")
     const jwtToken = await auth.getJWTToken({
       clientId: process.env.JWT_CLIENTID,
       technicalAccountId: process.env.JWT_TECH_ACC_ID,
