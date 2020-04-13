@@ -48,6 +48,10 @@ async function getJWTToken (options) {
     ims = 'https://ims-na1.adobelogin.com'
   } = options
 
+  console.log("id1 - " + options.clientId)
+  console.log("id2 - " + options.orgId)
+  console.log("p - " + options.privateKey)
+
   const errors = []
   if (!clientId) errors.push('clientId')
   if (!technicalAccountId) errors.push('technicalAccountId')

@@ -7,14 +7,5 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "TARGET_APIKEY" , "JWT_TOKEN": "TARGET_TOKEN" },
     "doNotLog": [ "TARGET_TOKEN" ]
-  },
-
-  "aio-lib-campaign-standard" : {
-    "repository": "https://github.com/adobe/aio-lib-campaign-standard",
-    "branch": "master",
-    "requiredEnv": [ "CAMPAIGN_STANDARD_TENANT_ID", "CAMPAIGN_STANDARD_API_KEY", "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "CAMPAIGN_STANDARD_API_KEY", "JWT_TOKEN": "CAMPAIGN_STANDARD_ACCESS_TOKEN" },
-    "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ]
   }
 }
