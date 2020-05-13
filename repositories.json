@@ -1,26 +1,4 @@
 {
-  "aio-lib-core-tvm" : {
-    "repository": "https://github.com/adobe/aio-lib-core-tvm",
-    "branch": "master",
-    "requiredEnv": [ "TEST_NAMESPACE_1", "TEST_NAMESPACE_2", "TEST_AUTH_1", "TEST_AUTH_2" ],
-    "doNotLog": [ "TEST_AUTH_1", "TEST_AUTH_2" ],
-    "mapEnv": { "JWT_CLIENTID": "TARGET_APIKEY" , "JWT_TOKEN": "TARGET_TOKEN" }
-  },
-
-  "aio-lib-state": {
-    "repository": "https://github.com/adobe/aio-lib-state",
-    "branch": "master",
-    "requiredEnv": [ "TEST_NAMESPACE_1", "TEST_NAMESPACE_2", "TEST_AUTH_1", "TEST_AUTH_2" ],
-    "doNotLog": [ "TEST_AUTH_1", "TEST_AUTH_2" ]
-  },
-
-  "aio-lib-files" : {
-    "repository": "https://github.com/adobe/aio-lib-files",
-    "branch": "master",
-    "requiredEnv": [ "TEST_NAMESPACE_1", "TEST_NAMESPACE_2", "TEST_AUTH_1", "TEST_AUTH_2" ],
-    "doNotLog": [ "TEST_AUTH_1", "TEST_AUTH_2" ]
-  },
-
   "aio-lib-target" : {
     "repository": "https://github.com/adobe/aio-lib-target",
     "branch": "master",
