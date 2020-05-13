@@ -24,5 +24,14 @@
     "requiredAuth": "oauth",
     "mapEnv": { "OAUTH_CLIENTID": "ANALYTICS_APIKEY" , "OAUTH_TOKEN": "ANALYTICS_TOKEN" },
     "doNotLog": [ "ANALYTICS_TOKEN" ]
+  },
+
+  "aio-lib-audience-manager-cd" : {
+    "repository": "https://github.com/adobe/aio-lib-audience-manager-cd",
+    "branch": "master",
+    "requiredEnv": [ "AUDIENCE_MANAGER_ORG_ID", "AUDIENCE_MANAGER_API_KEY", "AUDIENCE_MANAGER_ACCESS_TOKEN", "AUDIENCE_MANAGER_ID"],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "AUDIENCE_MANAGER_API_KEY" , "JWT_TOKEN": "AUDIENCE_MANAGER_ORG_ID" },
+    "doNotLog": [ "AUDIENCE_MANAGER_ACCESS_TOKEN" ]
   }
 }
