@@ -24,5 +24,14 @@
     "requiredAuth": "oauth",
     "mapEnv": { "OAUTH_CLIENTID": "ANALYTICS_APIKEY" , "OAUTH_TOKEN": "ANALYTICS_TOKEN" },
     "doNotLog": [ "ANALYTICS_TOKEN" ]
+  },
+
+  "aio-lib-events" : {
+    "repository": "https://github.com/adobe/aio-lib-events",
+    "branch": "master",
+    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_JWT_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
+    "doNotLog": [ "EVENTS_JWT_TOKEN" ]
   }
 }
