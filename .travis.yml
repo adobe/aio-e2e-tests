@@ -1,14 +1,17 @@
 language: node_js
 os:
-  - windows
-  - linux
+- windows
+- linux
 node_js:
-  - "10"
-  - "12"
+- '10'
+- '12'
 install:
-  - npm version
-  - npm install
+- npm version
+- npm install
 script:
-  - npm run all
+- npm run all
 after_success:
-  - ./node_modules/.bin/codecov
+- "./node_modules/.bin/codecov"
+before_install:
+- openssl aes-256-cbc -K $encrypted_05234ca8f109_key -iv $encrypted_05234ca8f109_iv
+  -in env.key.enc -out ./env.key -d
