@@ -15,6 +15,7 @@ Each tested repository has its own requirements, mostly environment variables to
 - [@adobe/aio-lib-analytics](https://github.com/adobe/aio-lib-analytics/blob/master/e2e/e2e.js)
 - [@adobe/aio-lib-target](https://github.com/adobe/aio-lib-target/blob/master/e2e/e2e.js)
 - [@adobe/aio-lib-campaign-standard](https://github.com/adobe/aio-lib-campaign-standard/tree/master/e2e)
+- [@adobe/aio-lib-audience-manager-cd](https://github.com/adobe/aio-lib-audience-manager-cd/tree/master/e2e)
 - [@adobe/aio-lib-events](https://github.com/adobe/aio-lib-events/tree/master/e2e)
 
 ## Add a new e2e test
