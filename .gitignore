@@ -2,3 +2,4 @@ node_modules
 .repos
 playground
 .env
+env.key
