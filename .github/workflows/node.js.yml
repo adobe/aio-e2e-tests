@@ -1,0 +1,51 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm i --package-lock --package-lock-only
+    - run: npm ci
+    - name: run e2e tests
+      env:
+        JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+        JWT_CLIENTID: ${{ secrets.JWT_CLIENTID }}
+        JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
+        JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
+        JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
+        TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
+        CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
+        ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
+        ANALYTICS_RSID: ${{ secrets.ANALYTICS_RSID }}
+        AUDIENCE_MANAGER_ID: ${{ secrets.AUDIENCE_MANAGER_ID }}
+        EVENTS_ORG_ID: ${{ secrets.EVENTS_ORG_ID }}
+        EVENTS_CONSUMER_ORG_ID: ${{ secrets.EVENTS_CONSUMER_ORG_ID }}
+        EVENTS_WORKSPACE_ID: ${{ secrets.EVENTS_WORKSPACE_ID }}
+        EVENTS_PROJECT_ID: ${{ secrets.EVENTS_PROJECT_ID }}
+        EVENTS_INTEGRATION_ID: ${{ secrets.EVENTS_INTEGRATION_ID }}
+      run: npm run all
+    - name: upload coverage
+      if: success()
+      run: curl -s https://codecov.io/bash | bash
+      env:
+        CODECOV_NAME: ${{ runner.os }} node.js ${{ matrix.node-version }}
+      shell: bash

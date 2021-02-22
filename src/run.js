@@ -88,16 +88,16 @@ async function runAll () {
 
     console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
     if(! process.env.JWT_PRIVATE_KEY) {
-      console.log("no private key set in env")
+      console.log(`no private key set in env as JWT_PRIVATE_KEY`)
       const private_key_file = path.join(startDir, "env.key")
       if(fs.existsSync(private_key_file)) {
-        //file will exist only in travis env
-        console.log("found travis key file")
+        // file may exist in CI env
+        console.log(`found key file ${private_key_file}`)
         const pKey = fs.readFileSync(private_key_file)
         process.env.JWT_PRIVATE_KEY = pKey
       }
       else {
-        console.log("no travis key file found")
+        console.log(`no key file ${private_key_file} found`)
       }
     }
     checkEnv(jwtVars)
@@ -120,7 +120,12 @@ async function runAll () {
 
   Object.keys(repositories).forEach(k => {
     try {
-      runOne(k, repositories[k])
+      const params = repositories[k]
+      if (params.disabled) {
+        console.log(`skipping e2e test for ${k} (disabled)`)
+      } else {
+        runOne(k, params)
+      }
     } catch (e) {
       console.error(e)
       console.error(chalk.red(`!! e2e tests for ${chalk.bold(k)} failed !!`))
