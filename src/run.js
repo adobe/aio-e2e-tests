@@ -19,6 +19,8 @@ const path = require('path')
 
 const resDir = '.repos'
 
+require('dotenv').config() // load .env if available
+
 /* ************************ HELPERS ************************ */
 function checkEnv (vars) {
   const missing = []
