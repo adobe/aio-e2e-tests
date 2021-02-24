@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /*
 Copyright 2019 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
@@ -89,16 +90,15 @@ async function runAll () {
     const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
 
     console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
-    if(! process.env.JWT_PRIVATE_KEY) {
-      console.log(`no private key set in env as JWT_PRIVATE_KEY`)
-      const private_key_file = path.join(startDir, "env.key")
-      if(fs.existsSync(private_key_file)) {
+    if (!process.env.JWT_PRIVATE_KEY) {
+      console.log('no private key set in env as JWT_PRIVATE_KEY')
+      const private_key_file = path.join(startDir, 'env.key')
+      if (fs.existsSync(private_key_file)) {
         // file may exist in CI env
         console.log(`found key file ${private_key_file}`)
         const pKey = fs.readFileSync(private_key_file)
         process.env.JWT_PRIVATE_KEY = pKey
-      }
-      else {
+      } else {
         console.log(`no key file ${private_key_file} found`)
       }
     }
