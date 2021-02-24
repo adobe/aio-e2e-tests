@@ -18,6 +18,7 @@
   },
 
   "aio-lib-analytics" : {
+    "disabled": true,
     "repository": "https://github.com/adobe/aio-lib-analytics",
     "branch": "master",
     "requiredEnv": [ "ANALYTICS_COMPANY", "ANALYTICS_APIKEY", "ANALYTICS_TOKEN", "ANALYTICS_RSID"],

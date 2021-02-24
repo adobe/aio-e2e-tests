@@ -85,7 +85,7 @@ async function runAll () {
   fs.emptyDirSync(resDir)
   process.chdir(resDir)
 
-  const testsWithJwt = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'jwt').map(([k, v]) => k)
+  const testsWithJwt = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
   if (testsWithJwt.length > 0) {
     const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
 
@@ -112,7 +112,7 @@ async function runAll () {
     })
     process.env.JWT_TOKEN = jwtToken.access_token
   }
-  const testsWithOauth = Object.entries(repositories).filter(([k, v]) => v.requiredAuth === 'oauth').map(([k, v]) => k)
+  const testsWithOauth = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
   if (testsWithOauth.length > 0) {
     console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
     checkEnv(['OAUTH_TOKEN_ACTION_URL', 'OAUTH_CLIENTID'])
