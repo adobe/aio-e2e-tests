@@ -27,7 +27,6 @@
   },
 
   "aio-lib-audience-manager-cd" : {
-    "disabled": true,
     "repository": "https://github.com/adobe/aio-lib-audience-manager-cd",
     "branch": "master",
     "requiredEnv": [ "AUDIENCE_MANAGER_ORG_ID", "AUDIENCE_MANAGER_API_KEY", "AUDIENCE_MANAGER_ACCESS_TOKEN", "AUDIENCE_MANAGER_ID"],
