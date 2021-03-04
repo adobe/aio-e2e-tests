@@ -37,7 +37,6 @@
   },
 
   "aio-lib-events" : {
-    "disabled": true,
     "repository": "https://github.com/adobe/aio-lib-events",
     "branch": "master",
     "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_JWT_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
