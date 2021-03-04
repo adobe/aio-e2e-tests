@@ -45,7 +45,9 @@ async function getJWTToken (options) {
     metaScopes = [
       'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
       'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
-      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk'
+      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
     ],
     ims = 'https://ims-na1.adobelogin.com'
   } = options
