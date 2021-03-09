@@ -42,5 +42,14 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
     "doNotLog": [ "EVENTS_JWT_TOKEN" ]
+  },
+
+  "aio-lib-ims" : {
+    "repository": "https://github.com/adobe/aio-lib-ims",
+    "branch": "master",
+    "requiredEnv": [ "IMS_CLIENT_ID", "IMS_CLIENT_SECRET", "IMS_SIGNED_JWT" ],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "IMS_CLIENT_ID" , "JWT_CLIENT_SECRET": "IMS_CLIENT_SECRET", "JWT_SIGNED": "IMS_SIGNED_JWT" },
+    "doNotLog": [ "EVENTS_JWT_TOKEN" ]
   }
 }
