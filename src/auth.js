@@ -43,6 +43,7 @@ async function getJWTToken (options) {
     privateKey,
     passphrase = '',
     metaScopes = [
+      'https://ims-na1.adobelogin.com/s/ent_user_sdk',
       'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk'
     ],
     ims = 'https://ims-na1.adobelogin.com'
