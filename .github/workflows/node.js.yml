@@ -32,11 +32,6 @@ jobs:
         JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
         JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
         JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
-        FIREFLY_JWT_PRIVATE_KEY: ${{ secrets.FIREFLY_JWT_PRIVATE_KEY }}
-        FIREFLY_JWT_CLIENTID: ${{ secrets.FIREFLY_JWT_CLIENTID }}
-        FIREFLY_JWT_TECH_ACC_ID: ${{ secrets.FIREFLY_JWT_TECH_ACC_ID }}
-        FIREFLY_JWT_ORG_ID: ${{ secrets.FIREFLY_JWT_ORG_ID }}
-        FIREFLY_JWT_CLIENT_SECRET: ${{ secrets.FIREFLY_JWT_CLIENT_SECRET }}
         TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
         CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
         ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
