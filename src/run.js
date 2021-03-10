@@ -104,11 +104,11 @@ async function runAll () {
     }
     checkEnv(jwtVars)
     const jwtToken = await auth.getJWTToken({
-      clientId: process.env.JWT_CLIENTID,
-      technicalAccountId: process.env.JWT_TECH_ACC_ID,
-      orgId: process.env.JWT_ORG_ID,
-      clientSecret: process.env.JWT_CLIENT_SECRET,
-      privateKey: process.env.JWT_PRIVATE_KEY
+      clientId: process.env.FIREFLY_JWT_CLIENTID,
+      technicalAccountId: process.env.FIREFLY_JWT_TECH_ACC_ID,
+      orgId: process.env.FIREFLY_JWT_ORG_ID,
+      clientSecret: process.env.FIREFLY_JWT_CLIENT_SECRET,
+      privateKey: process.env.FIREFLY_JWT_PRIVATE_KEY
     })
     process.env.JWT_TOKEN = jwtToken.access_token
   }
