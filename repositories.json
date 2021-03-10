@@ -42,5 +42,14 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
     "doNotLog": [ "EVENTS_JWT_TOKEN" ]
+  },
+
+  "aio-lib-console" : {
+    "repository": "https://github.com/adobe/aio-lib-console",
+    "branch": "master",
+    "requiredEnv": [ "CONSOLEAPI_ACCESS_TOKEN", "CONSOLEAPI_API_KEY", "CONSOLEAPI_IMS_ORG_ID" ],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "CONSOLEAPI_API_KEY" , "JWT_TOKEN": "CONSOLEAPI_ACCESS_TOKEN", "JWT_ORG_ID": "CONSOLEAPI_IMS_ORG_ID" },
+    "doNotLog": [ "CONSOLEAPI_ACCESS_TOKEN" ]
   }
 }
