@@ -75,6 +75,8 @@ async function getJWTToken (options) {
     aud: `${ims}/c/${clientId}`
   }
 
+  console.log('JWT PAYLOAD:', JSON.stringify(jwtPayload))
+
   for (let i = 0; i < metaScopes.length; i++) {
     if (metaScopes[i].indexOf('https') > -1) {
       jwtPayload[metaScopes[i]] = true
