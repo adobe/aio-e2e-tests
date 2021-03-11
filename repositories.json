@@ -42,5 +42,14 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
     "doNotLog": [ "EVENTS_JWT_TOKEN" ]
+  },
+
+  "aio-lib-runtime" : {
+    "repository": "https://github.com/adobe/aio-lib-runtime",
+    "branch": "master",
+    "requiredEnv": [ "RuntimeAPI_APIHOST", "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY"],
+    "mapEnv": { "RUNTIME_APIHOST": "RuntimeAPI_APIHOST" , "RUNTIME_NAMESPACE": "RuntimeAPI_NAMESPACE" , "RUNTIME_AUTH": "RuntimeAPI_API_KEY" },
+    "doNotLog": [ "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY" ]
   }
+
 }
