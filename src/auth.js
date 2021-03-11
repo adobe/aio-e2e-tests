@@ -74,9 +74,6 @@ async function getJWTToken (options) {
     sub: technicalAccountId,
     aud: `${ims}/c/${clientId}`
   }
-
-  console.log('JWT PAYLOAD:', JSON.stringify(jwtPayload))
-
   for (let i = 0; i < metaScopes.length; i++) {
     if (metaScopes[i].indexOf('https') > -1) {
       jwtPayload[metaScopes[i]] = true
@@ -84,6 +81,8 @@ async function getJWTToken (options) {
       jwtPayload[`${ims}/s/${metaScopes[i]}`] = true
     }
   }
+
+  console.log('JWT PAYLOAD:', JSON.stringify(jwtPayload))
 
   const token = jwt.sign(
     jwtPayload,
