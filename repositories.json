@@ -1,48 +1,4 @@
 {
-  "aio-lib-target" : {
-    "repository": "https://github.com/adobe/aio-lib-target",
-    "branch": "master",
-    "requiredEnv": [ "TARGET_TENANT", "TARGET_APIKEY", "TARGET_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "TARGET_APIKEY" , "JWT_TOKEN": "TARGET_TOKEN" },
-    "doNotLog": [ "TARGET_TOKEN" ]
-  },
-
-  "aio-lib-campaign-standard" : {
-    "repository": "https://github.com/adobe/aio-lib-campaign-standard",
-    "branch": "master",
-    "requiredEnv": [ "CAMPAIGN_STANDARD_TENANT_ID", "CAMPAIGN_STANDARD_API_KEY", "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "CAMPAIGN_STANDARD_API_KEY", "JWT_TOKEN": "CAMPAIGN_STANDARD_ACCESS_TOKEN" },
-    "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ]
-  },
-
-  "aio-lib-analytics" : {
-    "repository": "https://github.com/adobe/aio-lib-analytics",
-    "branch": "master",
-    "requiredEnv": [ "ANALYTICS_COMPANY", "ANALYTICS_APIKEY", "ANALYTICS_TOKEN", "ANALYTICS_RSID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "ANALYTICS_APIKEY" , "JWT_TOKEN": "ANALYTICS_TOKEN" },
-    "doNotLog": [ "ANALYTICS_TOKEN" ]
-  },
-
-  "aio-lib-audience-manager-cd" : {
-    "repository": "https://github.com/adobe/aio-lib-audience-manager-cd",
-    "branch": "master",
-    "requiredEnv": [ "AUDIENCE_MANAGER_ORG_ID", "AUDIENCE_MANAGER_API_KEY", "AUDIENCE_MANAGER_ACCESS_TOKEN", "AUDIENCE_MANAGER_ID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "AUDIENCE_MANAGER_API_KEY" , "JWT_TOKEN": "AUDIENCE_MANAGER_ACCESS_TOKEN", "JWT_ORG_ID": "AUDIENCE_MANAGER_ORG_ID" },
-    "doNotLog": [ "AUDIENCE_MANAGER_ACCESS_TOKEN" ]
-  },
-
-  "aio-lib-events" : {
-    "repository": "https://github.com/adobe/aio-lib-events",
-    "branch": "master",
-    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_JWT_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
-    "doNotLog": [ "EVENTS_JWT_TOKEN" ]
-  },
 
   "aio-lib-console" : {
     "repository": "https://github.com/adobe/aio-lib-console",
