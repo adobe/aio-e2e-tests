@@ -47,7 +47,7 @@
   "aio-lib-web" : {
     "repository": "https://github.com/adobe/aio-lib-web",
     "branch": "master",
-    "requiredEnv": [ "AIO_runtime_namespace", "AIO_runtime_auth"],
-    "doNotLog": [ "AIO_runtime_auth" ]
+    "requiredEnv": [ "RUNTIME_NAMESPACE", "RUNTIME_AUTH"],
+    "doNotLog": [ "RUNTIME_AUTH" ]
   }
 }
