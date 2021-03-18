@@ -42,5 +42,12 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
     "doNotLog": [ "EVENTS_JWT_TOKEN" ]
+  },
+
+  "aio-lib-web" : {
+    "repository": "https://github.com/adobe/aio-lib-web",
+    "branch": "master",
+    "requiredEnv": [ "AIO_runtime_namespace", "AIO_runtime_auth"],
+    "doNotLog": [ "AIO_runtime_auth" ]
   }
 }
