@@ -32,6 +32,11 @@ jobs:
         JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
         JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
         JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
+        CONSOLE_JWT_PRIVATE_KEY: ${{ secrets.CONSOLE_JWT_PRIVATE_KEY }}
+        CONSOLE_JWT_CLIENTID: ${{ secrets.CONSOLE_JWT_CLIENTID }}
+        CONSOLE_JWT_TECH_ACC_ID: ${{ secrets.CONSOLE_JWT_TECH_ACC_ID }}
+        CONSOLE_JWT_ORG_ID: ${{ secrets.CONSOLE_JWT_ORG_ID }}
+        CONSOLE_JWT_CLIENT_SECRET: ${{ secrets.CONSOLE_JWT_CLIENT_SECRET }}
         TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
         CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
         ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
