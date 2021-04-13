@@ -44,6 +44,13 @@
     "doNotLog": [ "EVENTS_JWT_TOKEN" ]
   },
 
+  "aio-lib-web" : {
+    "repository": "https://github.com/adobe/aio-lib-web",
+    "branch": "master",
+    "requiredEnv": [ "RUNTIME_NAMESPACE", "RUNTIME_AUTH"],
+    "doNotLog": [ "RUNTIME_AUTH" ]
+  },
+
   "aio-lib-ims" : {
     "repository": "https://github.com/adobe/aio-lib-ims",
     "branch": "master",
