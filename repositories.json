@@ -49,5 +49,14 @@
     "branch": "master",
     "requiredEnv": [ "RUNTIME_NAMESPACE", "RUNTIME_AUTH"],
     "doNotLog": [ "RUNTIME_AUTH" ]
+  },
+
+  "aio-lib-ims" : {
+    "repository": "https://github.com/adobe/aio-lib-ims",
+    "branch": "master",
+    "requiredEnv": [ "IMS_CLIENT_ID", "IMS_CLIENT_SECRET", "IMS_SIGNED_JWT" ],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "IMS_CLIENT_ID" , "JWT_CLIENT_SECRET": "IMS_CLIENT_SECRET", "JWT_SIGNED": "IMS_SIGNED_JWT" },
+    "doNotLog": [ "JWT_CLIENT_SECRET", "JWT_SIGNED" ]
   }
 }
