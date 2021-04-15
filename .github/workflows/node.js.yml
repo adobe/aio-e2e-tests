@@ -42,6 +42,8 @@ jobs:
         EVENTS_WORKSPACE_ID: ${{ secrets.EVENTS_WORKSPACE_ID }}
         EVENTS_PROJECT_ID: ${{ secrets.EVENTS_PROJECT_ID }}
         EVENTS_INTEGRATION_ID: ${{ secrets.EVENTS_INTEGRATION_ID }}
+        RUNTIME_NAMESPACE: ${{secrets.RUNTIME_NAMESPACE}}
+        RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
       run: npm run all
     - name: upload coverage
       if: success()
