@@ -58,5 +58,14 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "IMS_CLIENT_ID" , "JWT_CLIENT_SECRET": "IMS_CLIENT_SECRET", "JWT_SIGNED": "IMS_SIGNED_JWT" },
     "doNotLog": [ "JWT_CLIENT_SECRET", "JWT_SIGNED" ]
+  },
+
+  "aio-lib-runtime" : {
+    "repository": "https://github.com/adobe/aio-lib-runtime",
+    "branch": "master",
+    "requiredEnv": [ "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY"],
+    "mapEnv": { "RUNTIME_NAMESPACE": "RuntimeAPI_NAMESPACE" , "RUNTIME_AUTH": "RuntimeAPI_API_KEY" },
+    "doNotLog": [ "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY" ]
   }
+
 }
