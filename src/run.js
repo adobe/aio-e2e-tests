@@ -103,13 +103,16 @@ async function runAll () {
       }
     }
     checkEnv(jwtVars)
-    const jwtToken = await auth.getJWTToken({
+    const options = {
       clientId: process.env.JWT_CLIENTID,
       technicalAccountId: process.env.JWT_TECH_ACC_ID,
       orgId: process.env.JWT_ORG_ID,
       clientSecret: process.env.JWT_CLIENT_SECRET,
       privateKey: process.env.JWT_PRIVATE_KEY
-    })
+    }
+    const signedJwt = await auth.getSignedJwt(options)
+    process.env.JWT_SIGNED = signedJwt
+    const jwtToken = await auth.getJWTToken(options, signedJwt)
     process.env.JWT_TOKEN = jwtToken.access_token
   }
   const testsWithOauth = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
