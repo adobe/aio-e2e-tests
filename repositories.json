@@ -17,15 +17,6 @@
     "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ]
   },
 
-  "aio-lib-analytics" : {
-    "repository": "https://github.com/adobe/aio-lib-analytics",
-    "branch": "master",
-    "requiredEnv": [ "ANALYTICS_COMPANY", "ANALYTICS_APIKEY", "ANALYTICS_TOKEN", "ANALYTICS_RSID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "ANALYTICS_APIKEY" , "JWT_TOKEN": "ANALYTICS_TOKEN" },
-    "doNotLog": [ "ANALYTICS_TOKEN" ]
-  },
-
   "aio-lib-audience-manager-cd" : {
     "repository": "https://github.com/adobe/aio-lib-audience-manager-cd",
     "branch": "master",
