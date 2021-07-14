@@ -66,6 +66,15 @@
     "requiredEnv": [ "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY"],
     "mapEnv": { "RUNTIME_NAMESPACE": "RuntimeAPI_NAMESPACE" , "RUNTIME_AUTH": "RuntimeAPI_API_KEY" },
     "doNotLog": [ "RuntimeAPI_NAMESPACE", "RuntimeAPI_API_KEY" ]
+  },
+
+  "aio-lib-customer-profile" : {
+    "repository": "https://github.com/adobe/aio-lib-customer-profile",
+    "branch": "master",
+    "requiredEnv": [ "CUSTOMER_PROFILE_API_TENANT_ID", "CUSTOMER_PROFILE_API_IMS_ORG_ID", "CUSTOMER_PROFILE_API_API_KEY", "CUSTOMER_PROFILE_API_ACCESS_TOKEN" ],
+    "requiredAuth": "jwt",
+    "mapEnv": { "JWT_CLIENTID": "CUSTOMER_PROFILE_API_API_KEY" , "JWT_TOKEN": "CUSTOMER_PROFILE_API_ACCESS_TOKEN", "JWT_ORG_ID": "CUSTOMER_PROFILE_API_IMS_ORG_ID" },
+    "doNotLog": [ "CUSTOMER_PROFILE_API_ACCESS_TOKEN" ]
   }
 
 }
