@@ -44,6 +44,7 @@ jobs:
         EVENTS_INTEGRATION_ID: ${{ secrets.EVENTS_INTEGRATION_ID }}
         RUNTIME_NAMESPACE: ${{secrets.RUNTIME_NAMESPACE}}
         RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
+        CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
       run: npm run all
     - name: upload coverage
       if: success()
