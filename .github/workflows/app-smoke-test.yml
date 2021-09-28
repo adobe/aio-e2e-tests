@@ -1,0 +1,33 @@
+name: App smoke test
+
+on:
+  schedule:
+    # run daily at midnight
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [12, 14]
+        os: [ubuntu-latest]
+
+    steps:
+    - name: Setup CLI
+      uses: actions/checkout@master
+      with:
+          repository: adobe/aio-cli-plugin-app
+          os: ${{ matrix.os }}
+    - id: create
+      name: create app with no extensions
+      run: |
+        ls
+        npm i
+        mkdir noextapp
+        cd noextapp
+        ../bin/run app:init -y --no-login --no-extensions
+        ../bin/run app:build
+        echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
+        echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
+        ../bin/run app:deploy
