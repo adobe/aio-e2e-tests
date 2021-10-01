@@ -1,4 +1,4 @@
-name: App smoke test
+name: App smoke test (init, build and deploy)
 
 on:
   schedule:
@@ -18,16 +18,58 @@ jobs:
       uses: actions/checkout@master
       with:
           repository: adobe/aio-cli-plugin-app
-          os: ${{ matrix.os }}
     - id: create
       name: create app with no extensions
       run: |
-        ls
         npm i
-        mkdir noextapp
-        cd noextapp
-        ../bin/run app:init -y --no-login --no-extensions
-        ../bin/run app:build
+        mkdir ffapp
+        cd ffapp
+        
+        ../bin/run app:init -y --no-login --no-extensions > consoleoutput.txt
+        grep "App initialization finished" consoleoutput.txt
+        
         echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
         echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
-        ../bin/run app:deploy
+        
+        ../bin/run app:deploy >> consoleoutput.txt
+        grep "Your deployed actions:" consoleoutput.txt
+        grep "api/v1/web/ffapp/generic" consoleoutput.txt
+        grep "/api/v1/web/ffapp/publish-events" consoleoutput.txt
+        grep ".adobeio-static.net/index.html" consoleoutput.txt
+        grep "Successful deployment" consoleoutput.txt
+        
+    - id: createext
+      name: create app with extension
+      run: |
+        rm -rf ffapp
+        mkdir ffapp
+        cd ffapp
+        
+        ../bin/run app:init -y --no-login --extension dx/excshell/1 > consoleoutput.txt
+        grep "App initialization finished" consoleoutput.txt
+        
+        echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
+        echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
+        
+        ../bin/run app:deploy --no-publish >> consoleoutput.txt
+        grep "Your deployed actions:" consoleoutput.txt
+        grep "api/v1/web/dx-excshell-1/generic" consoleoutput.txt
+        grep ".adobeio-static.net/index.html" consoleoutput.txt
+        grep "Successful deployment" consoleoutput.txt
+        
+    - id: output
+      name: Write the output to console for debugging
+      if: ${{ failure() }}
+      run: |
+        cd ffapp
+        cat consoleoutput.txt
+        
+    - id: slacknotification
+      name: Slack Notification
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: 'Node version'
+        SLACK_MESSAGE: ${{ matrix.node }}
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
