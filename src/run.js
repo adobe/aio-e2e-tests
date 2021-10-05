@@ -104,20 +104,50 @@ async function runAll () {
     }
     checkEnv(jwtVars)
     const jwtToken = await auth.getJWTToken({
-      clientId: process.env.CONSOLE_JWT_CLIENTID,
-      technicalAccountId: process.env.CONSOLE_JWT_TECH_ACC_ID,
-      orgId: process.env.CONSOLE_JWT_ORG_ID,
-      clientSecret: process.env.CONSOLE_JWT_CLIENT_SECRET,
-      privateKey: process.env.CONSOLE_JWT_PRIVATE_KEY
+      clientId: process.env.JWT_CLIENTID,
+      technicalAccountId: process.env.JWT_TECH_ACC_ID,
+      orgId: process.env.JWT_ORG_ID,
+      clientSecret: process.env.JWT_CLIENT_SECRET,
+      privateKey: process.env.JWT_PRIVATE_KEY,
+      // hardcoded for now
+      metaScopes: [
+        'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
+      ]
     })
-    process.env.CONSOLE_JWT_TOKEN = jwtToken.access_token
+    process.env.JWT_TOKEN = jwtToken.access_token
   }
+
   const testsWithOauth = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
   if (testsWithOauth.length > 0) {
     console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
     checkEnv(['OAUTH_TOKEN_ACTION_URL', 'OAUTH_CLIENTID'])
     const oauthToken = await auth.getOauthToken(process.env.OAUTH_TOKEN_ACTION_URL)
     process.env.OAUTH_TOKEN = oauthToken.access_token
+  }
+
+  const testWithConsoleJwt = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'console-mta-jwt').map(([k, v]) => k)
+  if (testsWithJwt.length > 0) {
+    // NOTE: the console master techaccount jwt token is generated from the same console jwt integration, which requires the unified_dev_portal to be added separately in IMSS
+    const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'CONSOLE_MTA_JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'CONSOLE_MTA_JWT_TECH_ACC_ID']
+
+    console.log(chalk.dim(`tests '${testWithConsoleJwt}' require console-mta-jwt authentication`))
+    checkEnv(jwtVars)
+    const consoleMTAToken = await auth.getJWTToken({
+      clientId: process.env.JWT_CLIENTID,
+      technicalAccountId: process.env.CONSOLE_MTA_JWT_TECH_ACC_ID,
+      orgId: process.env.JWT_ORG_ID,
+      clientSecret: process.env.JWT_CLIENT_SECRET,
+      privateKey: process.env.CONSOLE_MTA_JWT_PRIVATE_KEY,
+      metaScopes: [
+        'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_unified_dev_portal_sdk'
+      ]
+    })
+    process.env.CONSOLE_MTA_JWT_TOKEN = consoleMTAToken.access_token
   }
 
   Object.keys(repositories).forEach(k => {

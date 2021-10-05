@@ -4,8 +4,8 @@
     "repository": "https://github.com/adobe/aio-lib-console",
     "branch": "master",
     "requiredEnv": [ "CONSOLEAPI_ACCESS_TOKEN", "CONSOLEAPI_API_KEY", "CONSOLEAPI_IMS_ORG_ID" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "CONSOLE_JWT_CLIENTID": "CONSOLEAPI_API_KEY" , "CONSOLE_JWT_TOKEN": "CONSOLEAPI_ACCESS_TOKEN", "CONSOLE_JWT_ORG_ID": "CONSOLEAPI_IMS_ORG_ID" },
+    "requiredAuth": "console-mta-jwt",
+    "mapEnv": { "JWT_CLIENTID": "CONSOLEAPI_API_KEY" , "CONSOLE_MTA_JWT_TOKEN": "CONSOLEAPI_ACCESS_TOKEN", "JWT_ORG_ID": "CONSOLEAPI_IMS_ORG_ID" },
     "doNotLog": [ "CONSOLEAPI_ACCESS_TOKEN" ]
   }
 }
