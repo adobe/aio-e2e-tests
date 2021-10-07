@@ -16,6 +16,8 @@ const fetch = require('node-fetch')
 const jwt = require('jsonwebtoken')
 const FormData = require('form-data')
 
+const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
+
 async function getOauthToken (actionURL) {
   const postOptions = {
     method: 'POST'
@@ -68,7 +70,7 @@ async function getSignedJwt (options) {
   }
 
   const jwtPayload = {
-    exp: Math.round(300 + Date.now() / 1000),
+    exp: Math.round(JWT_EXPIRY_SECONDS + Date.now() / 1000),
     iss: orgId,
     sub: technicalAccountId,
     aud: `${ims}/c/${clientId}`
