@@ -3,12 +3,13 @@ name: App smoke test (init, build and deploy)
 on:
   schedule:
     # run daily at midnight
-    - cron: '0 0 * * *'
+    - cron: '15 0 * * *'
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      max-parallel: 1
       matrix:
         node: [12, 14]
         os: [ubuntu-latest]
