@@ -70,12 +70,17 @@ jobs:
 
         echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
         echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
+        echo '{"project":{"org":{"ims_org_id":"${{secrets.JWT_ORG_ID}}"}}}' > .aio
 
         ../bin/run app:deploy --no-publish >> consoleoutput.txt
         grep "Your deployed actions:" consoleoutput.txt
-        grep "api/v1/web/dx-excshell-1/generic" consoleoutput.txt
-        grep ".adobeio-static.net/index.html" consoleoutput.txt
+        grep "api/v1/web/dx-asset-compute-worker-1/worker" consoleoutput.txt
         grep "Successful deployment" consoleoutput.txt
+
+#        ./node_modules/.bin/adobe-asset-compute test-worker >> consoleoutput.txt
+#        grep "running tests..." consoleoutput.txt
+#        grep "simple-test" consoleoutput.txt
+#        grep "Succeeded." consoleoutput.txt
 
     - id: output
       name: Write the output to console for debugging
