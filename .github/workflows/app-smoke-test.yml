@@ -60,17 +60,17 @@ jobs:
     - name: Setup Asset Compute
       uses: actions/checkout@master
       with:
-        repository: adobe/asset-compute-integration-tests
-      - id: create-asset-compute
-        name: asset compute smoke integration test
-        run: |
-          npm i
-          ./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt
+          repository: adobe/asset-compute-integration-tests
+    - id: create-asset-compute
+      name: asset compute smoke integration test
+      run: |
+        npm i
+        ./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt
 
-          grep "App initialization finished!" consoleoutput.txt
-          grep "Successful deployment" consoleoutput.txt
-          grep "Running tests in test/asset-compute/worker" consoleoutput.txt
-          grep "All tests were successful." consoleoutput.txt
+        grep "App initialization finished!" consoleoutput.txt
+        grep "Successful deployment" consoleoutput.txt
+        grep "Running tests in test/asset-compute/worker" consoleoutput.txt
+        grep "All tests were successful." consoleoutput.txt
 
     - id: output
       name: Write the output to console for debugging
