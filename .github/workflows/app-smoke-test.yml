@@ -1,6 +1,7 @@
 name: App smoke test (init, build and deploy)
 
 on:
+  workflow_dispatch:
   schedule:
     # run daily at midnight
     - cron: '15 0 * * *'
