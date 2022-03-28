@@ -44,7 +44,13 @@ async function getSignedJwt (options) {
     clientSecret,
     privateKey,
     passphrase = '',
-    metaScopes,
+    metaScopes = [
+      'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
+    ],
     ims = 'https://ims-na1.adobelogin.com'
   } = options
 
@@ -69,6 +75,7 @@ async function getSignedJwt (options) {
     sub: technicalAccountId,
     aud: `${ims}/c/${clientId}`
   }
+
   for (let i = 0; i < metaScopes.length; i++) {
     if (metaScopes[i].indexOf('https') > -1) {
       jwtPayload[metaScopes[i]] = true
@@ -76,8 +83,6 @@ async function getSignedJwt (options) {
       jwtPayload[`${ims}/s/${metaScopes[i]}`] = true
     }
   }
-
-  console.log('JWT PAYLOAD:', JSON.stringify(jwtPayload))
 
   const token = jwt.sign(
     jwtPayload,
