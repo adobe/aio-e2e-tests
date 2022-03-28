@@ -1,20 +1,16 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: Node.js CI
+name: Daily - run all e2e tests
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  schedule:
+    # run daily at midnight
+    - cron: '0 0 * * *'
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [14.x]
+        node: [14]
         os: [ubuntu-latest]
 
     steps:
@@ -32,11 +28,6 @@ jobs:
         JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
         JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
         JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
-        CONSOLE_JWT_PRIVATE_KEY: ${{ secrets.CONSOLE_JWT_PRIVATE_KEY }}
-        CONSOLE_JWT_CLIENTID: ${{ secrets.CONSOLE_JWT_CLIENTID }}
-        CONSOLE_JWT_TECH_ACC_ID: ${{ secrets.CONSOLE_JWT_TECH_ACC_ID }}
-        CONSOLE_JWT_ORG_ID: ${{ secrets.CONSOLE_JWT_ORG_ID }}
-        CONSOLE_JWT_CLIENT_SECRET: ${{ secrets.CONSOLE_JWT_CLIENT_SECRET }}
         TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
         CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
         ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
@@ -51,9 +42,11 @@ jobs:
         RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
         CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
       run: npm run all
-    - name: upload coverage
-      if: success()
-      run: curl -s https://codecov.io/bash | bash
+    - name: Slack Notification
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
       env:
-        CODECOV_NAME: ${{ runner.os }} node.js ${{ matrix.node-version }}
-      shell: bash
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: 'Node version'
+        SLACK_MESSAGE: ${{ matrix.node }}
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}

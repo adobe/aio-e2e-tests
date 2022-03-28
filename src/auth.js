@@ -16,6 +16,8 @@ const fetch = require('node-fetch')
 const jwt = require('jsonwebtoken')
 const FormData = require('form-data')
 
+const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
+
 async function getOauthToken (actionURL) {
   const postOptions = {
     method: 'POST'
@@ -34,7 +36,7 @@ async function getOauthToken (actionURL) {
   return json
 }
 
-async function getJWTToken (options) {
+async function getSignedJwt (options) {
   let {
     clientId,
     technicalAccountId,
@@ -62,7 +64,7 @@ async function getJWTToken (options) {
   }
 
   const jwtPayload = {
-    exp: Math.round(300 + Date.now() / 1000),
+    exp: Math.round(JWT_EXPIRY_SECONDS + Date.now() / 1000),
     iss: orgId,
     sub: technicalAccountId,
     aud: `${ims}/c/${clientId}`
@@ -83,10 +85,24 @@ async function getJWTToken (options) {
     { algorithm: 'RS256' }
   )
 
+  return token
+}
+
+async function getJWTToken (options, signedJwt) {
+  const {
+    clientId,
+    clientSecret,
+    ims = 'https://ims-na1.adobelogin.com'
+  } = options
+
+  if (!signedJwt) {
+    signedJwt = await getSignedJwt(options)
+  }
+
   const form = new FormData()
   form.append('client_id', clientId)
   form.append('client_secret', clientSecret)
-  form.append('jwt_token', token)
+  form.append('jwt_token', signedJwt)
 
   const postOptions = {
     method: 'POST',
@@ -108,6 +124,7 @@ async function getJWTToken (options) {
 }
 
 module.exports = {
-  getJWTToken: getJWTToken,
-  getOauthToken: getOauthToken
+  getSignedJwt,
+  getJWTToken,
+  getOauthToken
 }

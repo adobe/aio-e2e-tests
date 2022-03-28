@@ -103,21 +103,16 @@ async function runAll () {
       }
     }
     checkEnv(jwtVars)
-    const jwtToken = await auth.getJWTToken({
+    const options = {
       clientId: process.env.JWT_CLIENTID,
       technicalAccountId: process.env.JWT_TECH_ACC_ID,
       orgId: process.env.JWT_ORG_ID,
       clientSecret: process.env.JWT_CLIENT_SECRET,
-      privateKey: process.env.JWT_PRIVATE_KEY,
-      // hardcoded for now
-      metaScopes: [
-        'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
-      ]
-    })
+      privateKey: process.env.JWT_PRIVATE_KEY
+    }
+    const signedJwt = await auth.getSignedJwt(options)
+    process.env.JWT_SIGNED = signedJwt
+    const jwtToken = await auth.getJWTToken(options, signedJwt)
     process.env.JWT_TOKEN = jwtToken.access_token
   }
 
