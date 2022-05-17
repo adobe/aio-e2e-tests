@@ -26,7 +26,7 @@
     "formdata": "^0.10.4",
     "fs-extra": "^8.1.0",
     "jsonwebtoken": "^8.5.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "request": "^2.88.2"
   },
   "devDependencies": {
