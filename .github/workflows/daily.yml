@@ -51,9 +51,9 @@ jobs:
         SLACK_MESSAGE: ${{ matrix.node }}
         SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
     - name: checkout
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
     - name: Log to file
-    - run: |
+      run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
         echo $(date) ${{ matrix.node }} ${{ job.status }} >> logs/run.md
