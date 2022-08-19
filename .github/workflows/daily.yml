@@ -42,16 +42,6 @@ jobs:
         RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
         CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
       run: npm run all
-    - name: Slack Notification
-      if: ${{ failure() }}
-      uses: rtCamp/action-slack-notify@v2
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_TITLE: 'Node version'
-        SLACK_MESSAGE: ${{ matrix.node }}
-        SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
-    - name: checkout
-      uses: actions/checkout@v2
     - name: Log to file
       run: |
         git config user.name github-actions
@@ -60,5 +50,14 @@ jobs:
         git add .
         git commit -m "generated"
         git push
+    - name: Slack Notification
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: 'Node version'
+        SLACK_MESSAGE: ${{ matrix.node }}
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
+
 
         
