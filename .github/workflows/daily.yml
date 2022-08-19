@@ -56,7 +56,7 @@ jobs:
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        echo $(date) ${{ matrix.node }} ${{ job.status }} >> logs/run.md
+        echo "$(date) Node ${{ matrix.node }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}\n" >> logs/run.md
         git add .
         git commit -m "generated"
         git push
