@@ -47,7 +47,7 @@ jobs:
         git config user.name github-actions
         git config user.email github-actions@github.com
         echo "- $(date) Node ${{ matrix.node }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
-        git add .
+        git add logs/run.md
         git commit -m "generated"
         git push
     - name: Slack Notification
