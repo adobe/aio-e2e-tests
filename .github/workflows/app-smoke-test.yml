@@ -36,7 +36,7 @@ jobs:
         mkdir ffapp
         cd ffapp
 
-        echo a | ../bin/run app:init . -y --no-login --standalone-app > consoleoutput.txt
+        ../bin/run app:init . -y --no-login --standalone-app > consoleoutput.txt
         grep "App initialization finished" consoleoutput.txt
 
         echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
