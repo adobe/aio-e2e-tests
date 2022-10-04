@@ -30,11 +30,13 @@ jobs:
     - id: create
       name: create app with no extensions
       run: |
+        npm i @adobe/aio-cli-plugin-app-templates
+        npm pkg set oclif.plugins="[\"@adobe/aio-cli-plugin-app-templates\"]" --json
         npm i
         mkdir ffapp
         cd ffapp
 
-        ../bin/run app:init -y --no-login --no-extensions > consoleoutput.txt
+        ../bin/run app:init . -y --no-login --standalone-app > consoleoutput.txt
         grep "App initialization finished" consoleoutput.txt
 
         echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
@@ -53,7 +55,7 @@ jobs:
         mkdir ffapp
         cd ffapp
 
-        ../bin/run app:init -y --no-login --extension dx/excshell/1 > consoleoutput.txt
+        ../bin/run app:init . -y --no-login --extension dx/excshell/1 > consoleoutput.txt
         grep "App initialization finished" consoleoutput.txt
 
         echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
