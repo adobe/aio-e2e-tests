@@ -24,7 +24,7 @@
     "dotenv": "^8.2.0",
     "execa": "^2.1.0",
     "formdata": "^0.10.4",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^11.1.0",
     "jsonwebtoken": "^9.0.0",
     "node-fetch": "^2.6.7",
     "request": "^2.88.2"
