@@ -86,7 +86,7 @@ jobs:
       name: Write the output to console for debugging
       if: ${{ failure() }}
       run: |
-        cd ffapp
+        if [ -d "ffapp" ]; then cd ffapp; fi
         cat consoleoutput.txt
 
     - id: slacknotification
