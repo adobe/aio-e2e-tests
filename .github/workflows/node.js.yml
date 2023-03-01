@@ -14,15 +14,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [14.x]
+        node: [14.x]
         os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ matrix.node }}
     - run: npm i --package-lock --package-lock-only
     - run: npm ci
     - name: run e2e tests
@@ -50,5 +50,5 @@ jobs:
       if: success()
       run: curl -s https://codecov.io/bash | bash
       env:
-        CODECOV_NAME: ${{ runner.os }} node.js ${{ matrix.node-version }}
+        CODECOV_NAME: ${{ runner.os }} node.js ${{ matrix.node }}
       shell: bash
