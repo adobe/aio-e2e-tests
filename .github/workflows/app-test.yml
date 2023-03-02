@@ -1,0 +1,71 @@
+name: Run all e2e tests - Runs daily, on PR, and on demand
+
+on:
+  workflow_dispatch
+  schedule:
+    # run daily at midnight
+    - cron: '0 0 * * *'
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: [14, 16]
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm i --package-lock --package-lock-only
+    - run: npm ci
+    - name: Run E2E Tests
+      env:
+        JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+        JWT_CLIENTID: ${{ secrets.JWT_CLIENTID }}
+        JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
+        JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
+        JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
+        TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
+        CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
+        ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
+        ANALYTICS_RSID: ${{ secrets.ANALYTICS_RSID }}
+        AUDIENCE_MANAGER_ID: ${{ secrets.AUDIENCE_MANAGER_ID }}
+        EVENTS_ORG_ID: ${{ secrets.EVENTS_ORG_ID }}
+        EVENTS_CONSUMER_ORG_ID: ${{ secrets.EVENTS_CONSUMER_ORG_ID }}
+        EVENTS_WORKSPACE_ID: ${{ secrets.EVENTS_WORKSPACE_ID }}
+        EVENTS_PROJECT_ID: ${{ secrets.EVENTS_PROJECT_ID }}
+        EVENTS_INTEGRATION_ID: ${{ secrets.EVENTS_INTEGRATION_ID }}
+        RUNTIME_NAMESPACE: ${{secrets.RUNTIME_NAMESPACE}}
+        RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
+        CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
+      run: npm run all
+    - name: Log to File
+      if: ${{ always() && (github.event_name == 'schedule') }}
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        echo "- $(date) Node ${{ matrix.node }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
+        git add logs/run.md
+        git commit -m "generated"
+        git push
+    - name: Upload Coverage
+      if: ${{ success() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
+      uses: codecov/codecov-action@v3.1.1
+      with:
+        name: ${{ runner.os }} node.js ${{ matrix.node-version }}
+    - name: Slack Notification
+      if: ${{ failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: 'Node version'
+        SLACK_MESSAGE: ${{ matrix.node }}
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
