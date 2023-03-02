@@ -18,6 +18,7 @@ Each tested repository has its own requirements, mostly environment variables to
 - [@adobe/aio-lib-audience-manager-cd](https://github.com/adobe/aio-lib-audience-manager-cd/tree/master/e2e)
 - [@adobe/aio-lib-events](https://github.com/adobe/aio-lib-events/tree/master/e2e)
 - [@adobe/aio-lib-web](https://github.com/adobe/aio-lib-web/tree/master/e2e/)
+- [@adobe/aio-lib-console](https://github.com/adobe/aio-lib-console/tree/master/e2e)
 
 ## Add a new e2e test
 
