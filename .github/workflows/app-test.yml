@@ -1,7 +1,7 @@
 name: Run all e2e tests - Runs daily, on PR, and on demand
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
   schedule:
     # run daily at midnight
     - cron: '0 0 * * *'
