@@ -1,10 +1,15 @@
-name: Daily - run all e2e tests
+name: Run all e2e tests - Runs daily, on PR, and on demand
 
 on:
   workflow_dispatch:
   schedule:
     # run daily at midnight
     - cron: '0 0 * * *'
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -21,7 +26,7 @@ jobs:
         node-version: ${{ matrix.node }}
     - run: npm i --package-lock --package-lock-only
     - run: npm ci
-    - name: run e2e tests
+    - name: Run E2E Tests
       env:
         JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
         JWT_CLIENTID: ${{ secrets.JWT_CLIENTID }}
@@ -42,8 +47,8 @@ jobs:
         RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
         CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
       run: npm run all
-    - name: Log to file
-      if: ${{ always() }}
+    - name: Log to File
+      if: ${{ always() && (github.event_name == 'schedule') }}
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
@@ -51,14 +56,16 @@ jobs:
         git add logs/run.md
         git commit -m "generated"
         git push
+    - name: Upload Coverage
+      if: ${{ success() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
+      uses: codecov/codecov-action@v3.1.1
+      with:
+        name: ${{ runner.os }} node.js ${{ matrix.node }}
     - name: Slack Notification
-      if: ${{ failure() }}
+      if: ${{ failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         SLACK_TITLE: 'Node version'
         SLACK_MESSAGE: ${{ matrix.node }}
         SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
-
-
-        
