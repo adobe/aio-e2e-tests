@@ -30,11 +30,17 @@ jobs:
         pre-release-tag: 'pre'
         dependencies-to-update: '@adobe/aio-cli-lib-app-config,@adobe/aio-cli-lib-console,@adobe/aio-lib-core-config,@adobe/aio-lib-core-logging,@adobe/aio-lib-core-networking,@adobe/aio-lib-env,@adobe/aio-lib-ims,@adobe/aio-lib-runtime,@adobe/aio-lib-web,@adobe/generator-aio-app'
         dependencies-to-update-version-tag: 'next'
+    - name: Update package.json oclif.plugins
+      uses: jossef/action-set-json-field@v2.1
+      with:
+        file: package.json
+        field: oclif.plugins
+        value: "[\"@adobe/aio-cli-plugin-app-templates\"]"
+        parse_json: true
     - id: create
       name: create app with no extensions
       run: |
         npm i @adobe/aio-cli-plugin-app-templates
-        npm pkg set oclif.plugins="[\"@adobe/aio-cli-plugin-app-templates\"]" --json
         npm i
         mkdir ffapp
         cd ffapp
