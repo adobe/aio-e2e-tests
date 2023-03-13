@@ -22,7 +22,7 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "dotenv": "^8.2.0",
-    "execa": "^2.1.0",
+    "execa": "^7.1.0",
     "formdata": "^0.10.4",
     "fs-extra": "^8.1.0",
     "jsonwebtoken": "^9.0.0",
