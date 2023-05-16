@@ -57,6 +57,20 @@ jobs:
         grep "/api/v1/web/ffapp/publish-events" consoleoutput.txt
         grep ".adobeio-static.net/index.html" consoleoutput.txt
         grep "Successful deployment" consoleoutput.txt
+    - id: app_pack
+      name: pack an app (uses previous created app)
+      run: |
+        cd ffapp
+
+        ../bin/run app:pack > consoleoutput.txt
+        grep "Packaging done." consoleoutput.txt
+    - id: app_install
+      name: install an app (uses previous packed app)
+      run: |
+        cd ffapp
+
+        ../bin/run app:install app.zip --output install-folder > consoleoutput.txt
+        grep "Install done." consoleoutput.txt
     - id: createext
       name: create app with extension
       run: |
