@@ -62,14 +62,14 @@ jobs:
       run: |
         cd ffapp
 
-        ../bin/run app:pack > consoleoutput.txt
+        ../bin/run app:pack &> consoleoutput.txt
         grep "Packaging done." consoleoutput.txt
     - id: app_install
       name: install an app (uses previous packed app)
       run: |
         cd ffapp
 
-        ../bin/run app:install app.zip --output install-folder > consoleoutput.txt
+        ../bin/run app:install app.zip --output install-folder &> consoleoutput.txt
         grep "Install done." consoleoutput.txt
     - id: createext
       name: create app with extension
