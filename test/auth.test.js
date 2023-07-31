@@ -37,7 +37,20 @@ describe('getSignedJwt', () => {
     privateKey: 'my-private-key-123'
   }
 
+  const optionDefaults = {
+    metaScopes: [
+      'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+      'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
+    ],
+    ims: 'https://ims-na1.adobelogin.com',
+    passphrase: ''
+  }
+
   const token = 'abc123'
+  const algorithm = 'RS256'
   const nowDate = new Date('2023-07-31T15:55:24.408Z')
   let dateNowSpy
 
@@ -73,10 +86,10 @@ describe('getSignedJwt', () => {
       jwtPayload,
       {
         key: options.privateKey,
-        passphrase: ''
+        passphrase: optionDefaults.passphrase
       },
       {
-        algorithm: 'RS256'
+        algorithm
       }
     )
   })
@@ -95,10 +108,10 @@ describe('getSignedJwt', () => {
       jwtPayload,
       {
         key: options.privateKey,
-        passphrase: ''
+        passphrase: optionDefaults.passphrase
       },
       {
-        algorithm: 'RS256'
+        algorithm
       }
     )
   })
@@ -117,10 +130,10 @@ describe('getSignedJwt', () => {
       jwtPayload,
       {
         key: options.privateKey,
-        passphrase: ''
+        passphrase: optionDefaults.passphrase
       },
       {
-        algorithm: 'RS256'
+        algorithm
       }
     )
   })
@@ -128,14 +141,7 @@ describe('getSignedJwt', () => {
   test('set all valid parameters (use defaults)', async () => {
     const jwtPayload = createJwtPayload({
       ...defaultOptions,
-      metaScopes: [
-        'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
-        'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
-      ],
-      ims: 'https://ims-na1.adobelogin.com'
+      ...optionDefaults
     }, nowDate)
 
     await expect(getSignedJwt(defaultOptions)).resolves.toEqual(token)
@@ -143,10 +149,10 @@ describe('getSignedJwt', () => {
       jwtPayload,
       {
         key: defaultOptions.privateKey,
-        passphrase: ''
+        passphrase: optionDefaults.passphrase
       },
       {
-        algorithm: 'RS256'
+        algorithm
       }
     )
   })
