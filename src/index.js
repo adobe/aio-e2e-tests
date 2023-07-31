@@ -11,6 +11,7 @@ governing permissions and limitations under the License.
 */
 
 const { runAll } = require('./run')
+require('dotenv').config() // load .env if available
 
 runAll()
   .catch(e => {

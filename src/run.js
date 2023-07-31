@@ -20,8 +20,6 @@ const { checkEnv, logEnv, mapEnvVariables } = require('./utils')
 
 const RES_DIR = '.repos'
 
-require('dotenv').config() // load .env if available
-
 /**
  * Run one e2e test.
  *
