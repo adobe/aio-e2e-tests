@@ -11,13 +11,124 @@ governing permissions and limitations under the License.
 */
 
 const {
+  JWT_EXPIRY_SECONDS,
   getSignedJwt,
   getJWTToken,
   getOauthToken
 } = require('../src/auth')
+const jwt = require('jsonwebtoken')
+
+jest.mock('jsonwebtoken')
 
 test('exports', () => {
   expect(typeof getSignedJwt).toEqual('function')
   expect(typeof getJWTToken).toEqual('function')
   expect(typeof getOauthToken).toEqual('function')
+  expect(JWT_EXPIRY_SECONDS).toBeGreaterThan(0)
 })
+
+describe('getSignedJwt', () => {
+  const defaultOptions = {
+    clientId: 'some-client-id',
+    technicalAccountId: 'some-technical-account-id',
+    orgId: 'some-org',
+    clientSecret: 'some-secret',
+    privateKey: 'my-private-key-123'
+  }
+
+  const token = 'abc123'
+  const nowDate = new Date('2023-07-31T15:55:24.408Z')
+  let dateNowSpy
+
+  /** @private */
+  function createJwtPayload (options, nowDate) {
+    const metaScopes = {}
+    options.metaScopes.forEach(m => {
+      metaScopes[m] = true
+    })
+
+    return {
+      aud: `${options.ims}/c/${options.clientId}`,
+      exp: Math.round(JWT_EXPIRY_SECONDS + nowDate.valueOf() / 1000),
+      ...metaScopes,
+      iss: options.orgId,
+      sub: options.technicalAccountId
+    }
+  }
+
+  beforeEach(() => {
+    jwt.sign.mockReturnValue(token)
+    dateNowSpy = jest.spyOn(Date, 'now')
+      .mockImplementation(() =>
+        nowDate.valueOf()
+      )
+  })
+
+  afterEach(() => {
+    jwt.sign.mockReset()
+    dateNowSpy.mockReset()
+  })
+
+  test('required parameters missing', async () => {
+    const options = {}
+    return expect(getSignedJwt(options)).rejects.toThrow('Required parameter(s) clientId, technicalAccountId, orgId, clientSecret, privateKey are missing')
+  })
+
+  test('set all valid parameters', async () => {
+    const options = {
+      ...defaultOptions,
+      metaScopes: ['https://ims-na1.adobelogin.com/s/ent_campaign_sdk'],
+      ims: 'https://ims'
+    }
+
+    const jwtPayload = createJwtPayload(options, nowDate)
+
+    await expect(getSignedJwt(options)).resolves.toEqual(token)
+    expect(jwt.sign).toHaveBeenCalledWith(
+      jwtPayload,
+      {
+        key: options.privateKey,
+        passphrase: ''
+      },
+      {
+        algorithm: 'RS256'
+      }
+    )
+  })
+
+  test('set all valid parameters (use defaults)', async () => {
+    const options = {
+      ...defaultOptions
+    }
+
+    const jwtPayload = createJwtPayload({
+      ...options,
+      metaScopes: [
+        'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
+        'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
+      ],
+      ims: 'https://ims-na1.adobelogin.com'
+    }, nowDate)
+
+    await expect(getSignedJwt(options)).resolves.toEqual(token)
+    expect(jwt.sign).toHaveBeenCalledWith(
+      jwtPayload,
+      {
+        key: options.privateKey,
+        passphrase: ''
+      },
+      {
+        algorithm: 'RS256'
+      }
+    )
+  })
+})
+
+// describe('getJWTToken', () => {
+// })
+
+// describe('getOauthToken', () => {
+// })

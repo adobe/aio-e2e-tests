@@ -158,6 +158,7 @@ async function getJWTToken (options, signedJwt) {
 }
 
 module.exports = {
+  JWT_EXPIRY_SECONDS,
   getSignedJwt,
   getJWTToken,
   getOauthToken
