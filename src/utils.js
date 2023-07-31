@@ -30,12 +30,17 @@ function checkEnv (vars) {
  *
  * @param {Array<string>} vars an array of environment variables to log
  * @param {Array<string>} toHide an array of environment variables to mask from the log
+ * @param {object} logger the logger to use
  */
-function logEnv (vars, toHide) {
+function logEnv (vars, toHide = [], logger = console) {
   const toHideSet = new Set(toHide)
   vars.forEach(v => {
     const str = toHideSet.has(v) ? '<hidden>' : process.env[v]
-    console.log(`${v}=${str}`)
+    if (typeof logger?.log === 'function') {
+      logger.log(`${v}=${str}`)
+    } else {
+      throw new Error('logger is undefined or logger.log is not a function')
+    }
   })
 }
 

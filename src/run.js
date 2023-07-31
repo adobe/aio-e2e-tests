@@ -54,15 +54,17 @@ function runOne (name, params) {
 
 /**
  * Run all the e2e tests.
+ *
+ * @param {string} [artifactsDir=.repos] the folder to create all run artifacts in
  */
-async function runAll () {
+async function runAll (artifactsDir = RES_DIR) {
   console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
   console.log()
 
   const failed = []
   const startDir = process.cwd()
-  fs.emptyDirSync(RES_DIR)
-  process.chdir(RES_DIR)
+  fs.emptyDirSync(artifactsDir)
+  process.chdir(artifactsDir)
 
   const testsWithJwt = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
   if (testsWithJwt.length > 0) {
