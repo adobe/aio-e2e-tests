@@ -1,6 +1,5 @@
-/* eslint-disable camelcase */
 /*
-Copyright 2019 Adobe. All rights reserved.
+Copyright 2023 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -17,36 +16,18 @@ const repositories = require('../repositories.json')
 const fs = require('fs-extra')
 const auth = require('./auth')
 const path = require('path')
+const { checkEnv, logEnv, mapEnvVariables } = require('./utils')
 
-const resDir = '.repos'
+const RES_DIR = '.repos'
 
 require('dotenv').config() // load .env if available
 
-/* ************************ HELPERS ************************ */
-function checkEnv (vars) {
-  const missing = []
-  vars.forEach(v => {
-    if (!process.env[v]) missing.push(v)
-  })
-  if (missing.length > 0) throw new Error(`Missing env var(s): ${chalk.bold(missing.toString())}`)
-}
-
-function logEnv (vars, toHide) {
-  const toHideSet = new Set(toHide)
-  vars.forEach(v => {
-    const str = toHideSet.has(v) ? '<hidden>' : process.env[v]
-    console.log(`${v}=${str}`)
-  })
-}
-
-function mapEnvVariables (envMap) {
-  if (envMap) {
-    Object.keys(envMap).forEach(k => {
-      process.env[envMap[k]] = process.env[k]
-    })
-  }
-}
-
+/**
+ * Run one e2e test.
+ *
+ * @param {string} name the name of the repo (key in repositories.json)
+ * @param {object} params the parameters for the e2e run
+ */
 function runOne (name, params) {
   console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(params.repository)}, branch: ${chalk.bold(params.branch)}`))
 
@@ -73,17 +54,17 @@ function runOne (name, params) {
   console.log(chalk.green(`    - done for ${chalk.bold(name)}`))
 }
 
-/* ************************ RUN ************************ */
-
-// run tests
+/**
+ * Run all the e2e tests.
+ */
 async function runAll () {
   console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
   console.log()
 
   const failed = []
   const startDir = process.cwd()
-  fs.emptyDirSync(resDir)
-  process.chdir(resDir)
+  fs.emptyDirSync(RES_DIR)
+  process.chdir(RES_DIR)
 
   const testsWithJwt = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
   if (testsWithJwt.length > 0) {
@@ -92,14 +73,14 @@ async function runAll () {
     console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
     if (!process.env.JWT_PRIVATE_KEY) {
       console.log('no private key set in env as JWT_PRIVATE_KEY')
-      const private_key_file = path.join(startDir, 'env.key')
-      if (fs.existsSync(private_key_file)) {
+      const privateKeyFile = path.join(startDir, 'env.key')
+      if (fs.existsSync(privateKeyFile)) {
         // file may exist in CI env
-        console.log(`found key file ${private_key_file}`)
-        const pKey = fs.readFileSync(private_key_file)
+        console.log(`found key file ${privateKeyFile}`)
+        const pKey = fs.readFileSync(privateKeyFile)
         process.env.JWT_PRIVATE_KEY = pKey
       } else {
-        console.log(`no key file ${private_key_file} found`)
+        console.log(`no key file ${privateKeyFile} found`)
       }
     }
     checkEnv(jwtVars)
@@ -144,12 +125,12 @@ async function runAll () {
   if (failed.length === 0) console.log(chalk.green.bold('-- all e2e tests ran successfully --'))
   else {
     console.log(chalk.red(`-- some test(s) failed: ${chalk.bold(failed.toString())} --`))
+    // eslint-disable-next-line no-process-exit
     process.exit(1)
   }
 }
 
-runAll()
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
-  })
+module.exports = {
+  runOne,
+  runAll
+}
