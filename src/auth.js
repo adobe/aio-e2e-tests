@@ -18,6 +18,37 @@ const jwt = require('jsonwebtoken')
 const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
 
 /**
+ * Create a jwt payload.
+ *
+ * @param {object} options see getSignedJwt
+ * @param {Date} nowDate the current Date
+ * @returns {object} the payload
+ */
+function createJwtPayload (options, nowDate) {
+  let m = options.metaScopes
+  if (!Array.isArray(m)) {
+    m = m.split(',')
+  }
+
+  const metaScopes = {}
+  m.forEach(m => {
+    if (m.startsWith('https')) {
+      metaScopes[m] = true
+    } else {
+      metaScopes[`${options.ims}/s/${m}`] = true
+    }
+  })
+
+  return {
+    aud: `${options.ims}/c/${options.clientId}`,
+    exp: Math.round(JWT_EXPIRY_SECONDS + nowDate.valueOf() / 1000),
+    ...metaScopes,
+    iss: options.orgId,
+    sub: options.technicalAccountId
+  }
+}
+
+/**
  * Gets an OAuth token.
  *
  * @param {string} actionURL the url to fetch the token from
@@ -56,7 +87,7 @@ async function getOauthToken (actionURL) {
  * @returns {string} the signed jwt
  */
 async function getSignedJwt (options) {
-  let {
+  const {
     clientId,
     technicalAccountId,
     orgId,
@@ -80,28 +111,17 @@ async function getSignedJwt (options) {
   if (!clientSecret) { errors.push('clientSecret') }
   if (!privateKey) { errors.push('privateKey') }
   if (!metaScopes || metaScopes.length === 0) { errors.push('metaScopes') }
+  if (!ims) { errors.push('ims') }
   if (errors.length > 0) {
     throw new Error(`Required parameter(s) ${errors.join(', ')} are missing`)
   }
 
-  if (metaScopes.constructor !== Array) {
-    metaScopes = metaScopes.split(',')
-  }
-
-  const jwtPayload = {
-    exp: Math.round(JWT_EXPIRY_SECONDS + Date.now() / 1000),
-    iss: orgId,
-    sub: technicalAccountId,
-    aud: `${ims}/c/${clientId}`
-  }
-
-  for (let i = 0; i < metaScopes.length; i++) {
-    if (metaScopes[i].indexOf('https') > -1) {
-      jwtPayload[metaScopes[i]] = true
-    } else {
-      jwtPayload[`${ims}/s/${metaScopes[i]}`] = true
-    }
-  }
+  const jwtPayload = createJwtPayload({ // potentially add the defaults, to options
+    ...options,
+    passphrase,
+    metaScopes,
+    ims
+  }, new Date(Date.now()))
 
   const token = jwt.sign(
     jwtPayload,
@@ -159,6 +179,7 @@ async function getJWTToken (options, signedJwt) {
 
 module.exports = {
   JWT_EXPIRY_SECONDS,
+  createJwtPayload,
   getSignedJwt,
   getJWTToken,
   getOauthToken

@@ -12,6 +12,7 @@ governing permissions and limitations under the License.
 
 const {
   JWT_EXPIRY_SECONDS,
+  createJwtPayload,
   getSignedJwt,
   getJWTToken,
   getOauthToken
@@ -39,31 +40,6 @@ describe('getSignedJwt', () => {
   const token = 'abc123'
   const nowDate = new Date('2023-07-31T15:55:24.408Z')
   let dateNowSpy
-
-  /** @private */
-  function createJwtPayload (options, nowDate) {
-    let m = options.metaScopes
-    if (m.constructor !== Array) {
-      m = m.split(',')
-    }
-
-    const metaScopes = {}
-    m.forEach(m => {
-      if (m.startsWith('https')) {
-        metaScopes[m] = true
-      } else {
-        metaScopes[`${options.ims}/s/${m}`] = true
-      }
-    })
-
-    return {
-      aud: `${options.ims}/c/${options.clientId}`,
-      exp: Math.round(JWT_EXPIRY_SECONDS + nowDate.valueOf() / 1000),
-      ...metaScopes,
-      iss: options.orgId,
-      sub: options.technicalAccountId
-    }
-  }
 
   beforeEach(() => {
     jwt.sign.mockReturnValue(token)
@@ -150,12 +126,8 @@ describe('getSignedJwt', () => {
   })
 
   test('set all valid parameters (use defaults)', async () => {
-    const options = {
-      ...defaultOptions
-    }
-
     const jwtPayload = createJwtPayload({
-      ...options,
+      ...defaultOptions,
       metaScopes: [
         'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
         'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
@@ -166,11 +138,11 @@ describe('getSignedJwt', () => {
       ims: 'https://ims-na1.adobelogin.com'
     }, nowDate)
 
-    await expect(getSignedJwt(options)).resolves.toEqual(token)
+    await expect(getSignedJwt(defaultOptions)).resolves.toEqual(token)
     expect(jwt.sign).toHaveBeenCalledWith(
       jwtPayload,
       {
-        key: options.privateKey,
+        key: defaultOptions.privateKey,
         passphrase: ''
       },
       {
