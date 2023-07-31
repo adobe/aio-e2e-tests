@@ -42,9 +42,18 @@ describe('getSignedJwt', () => {
 
   /** @private */
   function createJwtPayload (options, nowDate) {
+    let m = options.metaScopes
+    if (m.constructor !== Array) {
+      m = m.split(',')
+    }
+
     const metaScopes = {}
-    options.metaScopes.forEach(m => {
-      metaScopes[m] = true
+    m.forEach(m => {
+      if (m.startsWith('https')) {
+        metaScopes[m] = true
+      } else {
+        metaScopes[`${options.ims}/s/${m}`] = true
+      }
     })
 
     return {
@@ -78,6 +87,50 @@ describe('getSignedJwt', () => {
     const options = {
       ...defaultOptions,
       metaScopes: ['https://ims-na1.adobelogin.com/s/ent_campaign_sdk'],
+      ims: 'https://ims'
+    }
+
+    const jwtPayload = createJwtPayload(options, nowDate)
+
+    await expect(getSignedJwt(options)).resolves.toEqual(token)
+    expect(jwt.sign).toHaveBeenCalledWith(
+      jwtPayload,
+      {
+        key: options.privateKey,
+        passphrase: ''
+      },
+      {
+        algorithm: 'RS256'
+      }
+    )
+  })
+
+  test('metascopes as a csv', async () => {
+    const options = {
+      ...defaultOptions,
+      metaScopes: 'https://ims-na1.adobelogin.com/s/ent_campaign_sdk,https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
+      ims: 'https://ims'
+    }
+
+    const jwtPayload = createJwtPayload(options, nowDate)
+
+    await expect(getSignedJwt(options)).resolves.toEqual(token)
+    expect(jwt.sign).toHaveBeenCalledWith(
+      jwtPayload,
+      {
+        key: options.privateKey,
+        passphrase: ''
+      },
+      {
+        algorithm: 'RS256'
+      }
+    )
+  })
+
+  test('metascopes not https', async () => {
+    const options = {
+      ...defaultOptions,
+      metaScopes: 'ent_campaign_sdk,ent_analytics_bulk_ingest_sdk',
       ims: 'https://ims'
     }
 
