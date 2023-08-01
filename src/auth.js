@@ -22,10 +22,10 @@ const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
  * Create a jwt payload.
  *
  * @param {object} options see getSignedJwt
- * @param {Date} nowDate the current Date
+ * @param {number} millisecondsSinceEpoch the date in ms since epoch
  * @returns {object} the payload
  */
-function createJwtPayload (options, nowDate) {
+function createJwtPayload (options, millisecondsSinceEpoch = Date.now()) {
   let m = options.metaScopes
   if (!Array.isArray(m)) {
     m = m.split(',')
@@ -42,7 +42,7 @@ function createJwtPayload (options, nowDate) {
 
   return {
     aud: `${options.ims}/c/${options.clientId}`,
-    exp: Math.round(JWT_EXPIRY_SECONDS + nowDate.valueOf() / 1000),
+    exp: Math.round(JWT_EXPIRY_SECONDS + millisecondsSinceEpoch / 1000),
     ...metaScopes,
     iss: options.orgId,
     sub: options.technicalAccountId
@@ -122,7 +122,7 @@ async function getSignedJwt (options) {
     passphrase,
     metaScopes,
     ims
-  }, new Date(Date.now()))
+  })
 
   const token = jwt.sign(
     jwtPayload,

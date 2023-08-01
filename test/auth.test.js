@@ -62,14 +62,14 @@ describe('getSignedJwt', () => {
 
   const token = 'abc123'
   const algorithm = 'RS256'
-  const nowDate = new Date('2023-07-31T15:55:24.408Z')
+  const nowDateMs = new Date('2023-07-31T15:55:24.408Z').valueOf()
   let dateNowSpy
 
   beforeEach(() => {
     jwt.sign.mockReturnValue(token)
     dateNowSpy = jest.spyOn(Date, 'now')
       .mockImplementation(() =>
-        nowDate.valueOf()
+        nowDateMs
       )
   })
 
@@ -90,7 +90,7 @@ describe('getSignedJwt', () => {
       ims: 'https://ims'
     }
 
-    const jwtPayload = createJwtPayload(options, nowDate)
+    const jwtPayload = createJwtPayload(options, nowDateMs)
 
     await expect(getSignedJwt(options)).resolves.toEqual(token)
     expect(jwt.sign).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe('getSignedJwt', () => {
       ims: 'https://ims'
     }
 
-    const jwtPayload = createJwtPayload(options, nowDate)
+    const jwtPayload = createJwtPayload(options, nowDateMs)
 
     await expect(getSignedJwt(options)).resolves.toEqual(token)
     expect(jwt.sign).toHaveBeenCalledWith(
@@ -144,7 +144,7 @@ describe('getSignedJwt', () => {
       ims: 'https://ims'
     }
 
-    const jwtPayload = createJwtPayload(options, nowDate)
+    const jwtPayload = createJwtPayload(options, nowDateMs)
 
     await expect(getSignedJwt(options)).resolves.toEqual(token)
     expect(jwt.sign).toHaveBeenCalledWith(
@@ -163,7 +163,7 @@ describe('getSignedJwt', () => {
     const jwtPayload = createJwtPayload({
       ...defaultOptions,
       ...optionDefaults
-    }, nowDate)
+    }, nowDateMs)
 
     await expect(getSignedJwt(defaultOptions)).resolves.toEqual(token)
     expect(jwt.sign).toHaveBeenCalledWith(
