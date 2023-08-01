@@ -77,15 +77,97 @@ test('runOne', () => {
 })
 
 describe('runAll', () => {
-  test('oauth', () => {
-    // mock getOauthToken
+  const oauthAccessToken = {
+    access_token: 'oauth-access-token'
+  }
+  const oauthRepos = {
+    'an-oauth-repo': {
+      repository: 'https://github.com/adobe/an-oauth-repo',
+      branch: 'main',
+      requiredEnv: ['A', 'B', 'C'],
+      requiredAuth: 'oauth',
+      mapEnv: undefined, // for coverage
+      doNotLog: ['B']
+    }
+  }
+
+  const jwtAccessToken = {
+    access_token: 'jwt-access-token'
+  }
+  const jwtRepos = {
+    'a-jwt-repo': {
+      repository: 'https://github.com/adobe/a-jwt-repo',
+      branch: 'main',
+      requiredEnv: ['D', 'E', 'F'],
+      requiredAuth: 'jwt',
+      mapEnv: {},
+      doNotLog: ['F']
+    }
+  }
+
+  const disabledRepos = {
+    'a-disabled-repo': {
+      repository: 'https://github.com/adobe/a-disabled-repo',
+      disabled: true,
+      branch: 'main',
+      requiredEnv: ['Q', 'E', 'D'],
+      requiredAuth: 'jwt',
+      doNotLog: ['Q']
+    }
+  }
+
+  test('oauth repos', async () => {
+    auth.getOauthToken.mockResolvedValue(oauthAccessToken)
+    await expect(runAll(oauthRepos)).resolves.not.toThrow()
+    expect(process.env.OAUTH_TOKEN).toEqual(oauthAccessToken.access_token)
   })
 
-  test('jwt', () => {
-    // existsSync private key
-    // readFileSync
-    // checkEnv
-    // getSignedJwt
-    // getJWTToken
+  test('jwt repos', async () => {
+    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
+    await expect(runAll(jwtRepos)).resolves.not.toThrow()
+    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
+    expect(process.env.JWT_PRIVATE_KEY).toBeUndefined()
+  })
+
+  test('jwt repos (read private key from file)', async () => {
+    const privateKey = 'a-private-key'
+
+    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
+    fs.existsSync.mockReturnValue(true)
+    fs.readFileSync.mockReturnValue(privateKey)
+
+    await expect(runAll(jwtRepos)).resolves.not.toThrow()
+    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
+    expect(process.env.JWT_PRIVATE_KEY).toEqual(privateKey)
+  })
+
+  test('jwt repos (use process.env.JWT_PRIVATE_KEY)', async () => {
+    const privateKey = 'a-private-key-2'
+
+    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
+    process.env.JWT_PRIVATE_KEY = privateKey
+
+    await expect(runAll(jwtRepos)).resolves.not.toThrow()
+    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
+    expect(process.env.JWT_PRIVATE_KEY).toEqual(privateKey)
+  })
+
+  test('skip disabled repos', async () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+    await expect(runAll(disabledRepos)).resolves.not.toThrow()
+    expect(log).toHaveBeenCalledWith(`skipping e2e test for ${Object.keys(disabledRepos)[0]} (disabled)`)
+    log.mockReset()
+  })
+
+  test('failed run', async () => {
+    // we simulate a failure by throwing an error for execa.sync when runOne is called
+    execa.sync.mockImplementation(() => {
+      throw new Error('some error')
+    })
+    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
+
+    await expect(runAll(jwtRepos)).resolves.not.toThrow() // the exception is eaten
+    expect(process.exit).toHaveBeenCalledWith(1)
   })
 })
