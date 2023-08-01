@@ -14,6 +14,7 @@ governing permissions and limitations under the License.
 
 const fetch = require('node-fetch')
 const jwt = require('jsonwebtoken')
+const FormData = require('form-data')
 
 const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
 

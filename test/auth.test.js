@@ -18,8 +18,19 @@ const {
   getOauthToken
 } = require('../src/auth')
 const jwt = require('jsonwebtoken')
+const fetch = require('node-fetch')
 
 jest.mock('jsonwebtoken')
+jest.mock('node-fetch', () => jest.fn())
+
+/** @private */
+function createResponsePromise ({ ok = true, status = 200, jsonReturnValue = {} }) {
+  return Promise.resolve({
+    ok,
+    status,
+    json: () => jsonReturnValue
+  })
+}
 
 test('exports', () => {
   expect(typeof getSignedJwt).toEqual('function')
@@ -116,6 +127,16 @@ describe('getSignedJwt', () => {
     )
   })
 
+  test('metascopes empty array, ims empty string', async () => {
+    const options = {
+      ...defaultOptions,
+      metaScopes: [],
+      ims: ''
+    }
+
+    await expect(getSignedJwt(options)).rejects.toThrow('Required parameter(s) metaScopes, ims are missing')
+  })
+
   test('metascopes not https', async () => {
     const options = {
       ...defaultOptions,
@@ -158,8 +179,103 @@ describe('getSignedJwt', () => {
   })
 })
 
-// describe('getJWTToken', () => {
-// })
+describe('getJWTToken', () => {
+  const jwtSignOptions = {
+    clientId: 'some-client-id',
+    technicalAccountId: 'some-technical-account-id',
+    orgId: 'some-org',
+    clientSecret: 'some-secret',
+    privateKey: 'my-private-key-123'
+  }
+  const defaultOptions = {
+    clientId: 'some-client-id',
+    clientSecret: 'some-client-secret'
+  }
+  const signedJwtToken = 'abc123'
 
-// describe('getOauthToken', () => {
-// })
+  beforeEach(() => {
+    jwt.sign.mockReturnValue('some-token')
+  })
+
+  afterEach(() => {
+    jwt.sign.mockReset()
+    fetch.mockReset()
+  })
+
+  test('with signedJwt', async () => {
+    const json = {
+      access_token: 'xyz123456'
+    }
+
+    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
+    await expect(getJWTToken(defaultOptions, signedJwtToken)).resolves.toEqual(json)
+  })
+
+  test('without signedJwt', async () => {
+    const options = {
+      ...jwtSignOptions,
+      ...defaultOptions
+    }
+    const json = {
+      access_token: 'xyz123456'
+    }
+
+    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
+    await expect(getJWTToken(options)).resolves.toEqual(json)
+  })
+
+  test('exchange jwt, no access token and no error', async () => {
+    const json = {}
+
+    fetch.mockImplementation(() => createResponsePromise({ ok: false, status: 400, jsonReturnValue: json }))
+    await expect(getJWTToken(defaultOptions, signedJwtToken)).rejects.toThrow(
+      `An unknown error occurred while swapping jwt. The response is as follows: ${JSON.stringify(json)}`)
+  })
+
+  test('exchange jwt, no access token has error', async () => {
+    const json = {
+      error: 'my-error',
+      error_description: 'my-error-description'
+    }
+
+    fetch.mockImplementation(() => createResponsePromise({ ok: false, status: 400, jsonReturnValue: json }))
+    await expect(getJWTToken(defaultOptions, signedJwtToken)).rejects.toThrow(`${json.error}: ${json.error_description}`)
+  })
+})
+
+describe('getOauthToken', () => {
+  const actionUrl = 'https://some.server'
+  beforeEach(() => {
+  })
+
+  afterEach(() => {
+    fetch.mockReset()
+  })
+
+  test('no errors', async () => {
+    const json = {
+      access_token: 'xyz123456'
+    }
+
+    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
+    await expect(getOauthToken(actionUrl)).resolves.toEqual(json)
+  })
+
+  test('no access token, no error', async () => {
+    const json = {}
+
+    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
+    await expect(getOauthToken(actionUrl)).rejects.toThrow(
+      `An unknown error occurred fetching oauth token. The response is as follows: ${JSON.stringify(json)}`)
+  })
+
+  test('no access token, has error', async () => {
+    const json = {
+      error: 'my-error',
+      error_description: 'my-error-description'
+    }
+
+    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
+    await expect(getOauthToken(actionUrl)).rejects.toThrow(`${json.error}: ${json.error_description}`)
+  })
+})
