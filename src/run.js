@@ -12,7 +12,6 @@ governing permissions and limitations under the License.
 
 const execa = require('execa')
 const chalk = require('chalk').default
-const repositories = require('../repositories.json')
 const fs = require('fs-extra')
 const auth = require('./auth')
 const path = require('path')
@@ -25,25 +24,37 @@ const RES_DIR = '.repos'
  *
  * @param {string} name the name of the repo (key in repositories.json)
  * @param {object} params the parameters for the e2e run
+ * @param {object} [params.mapEnv] the parameters to map
+ * @param {Array<string>} params.requiredEnv the required env variables to check for
+ * @param {Array<string>} params.doNotLog the env variables not to log values for
+ * @param {string} params.repository the git repository (url) to clone
+ * @param {string} params.branch the branch of the git repository to clone
  */
 function runOne (name, params) {
-  console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(params.repository)}, branch: ${chalk.bold(params.branch)}`))
+  const {
+    mapEnv,
+    requiredEnv,
+    doNotLog = [],
+    repository,
+    branch
+  } = params
+  console.log(chalk.blue(`> e2e tests for ${chalk.bold(name)}, repo: ${chalk.bold(repository)}, branch: ${chalk.bold(branch)}`))
 
-  if (params.mapEnv) {
-    console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(params.mapEnv).map(([k, v]) => k + '->' + v).toString())}`))
-    mapEnvVariables(params.mapEnv)
+  if (mapEnv) {
+    console.log(chalk.dim(`    - mapping env vars: ${chalk.bold(Object.entries(mapEnv).map(([k, v]) => k + '->' + v).toString())}`))
+    mapEnvVariables(mapEnv)
   }
 
-  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(params.requiredEnv.toString())}`))
-  checkEnv(params.requiredEnv)
+  console.log(chalk.dim(`    - checking existance of env vars: ${chalk.bold(requiredEnv.toString())}`))
+  checkEnv(requiredEnv)
 
-  logEnv(params.requiredEnv, params.doNotLog)
+  logEnv(requiredEnv, doNotLog)
 
-  console.log(chalk.dim(`    - cloning repo ${chalk.bold(params.repository)}..`))
-  execa.sync('git', ['clone', params.repository, name], { stderr: 'inherit' })
+  console.log(chalk.dim(`    - cloning repo ${chalk.bold(repository)}..`))
+  execa.sync('git', ['clone', repository, name], { stderr: 'inherit' })
   process.chdir(name)
-  console.log(chalk.dim(`    - checking out branch ${chalk.bold(params.branch)}..`))
-  execa.sync('git', ['checkout', params.branch], { stderr: 'inherit' })
+  console.log(chalk.dim(`    - checking out branch ${chalk.bold(branch)}..`))
+  execa.sync('git', ['checkout', branch], { stderr: 'inherit' })
   console.log(chalk.dim('    - installing npm packages..'))
   execa.sync('npm', ['install'], { stderr: 'inherit' })
   console.log(chalk.bold('    - running tests..'))
@@ -55,9 +66,10 @@ function runOne (name, params) {
 /**
  * Run all the e2e tests.
  *
+ * @param {object} repositoriesJson the data on all the repositories to run the tests on
  * @param {string} [artifactsDir=.repos] the folder to create all run artifacts in
  */
-async function runAll (artifactsDir = RES_DIR) {
+async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
   console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
   console.log()
 
@@ -66,7 +78,7 @@ async function runAll (artifactsDir = RES_DIR) {
   fs.emptyDirSync(artifactsDir)
   process.chdir(artifactsDir)
 
-  const testsWithJwt = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
+  const testsWithJwt = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
   if (testsWithJwt.length > 0) {
     const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
 
@@ -96,7 +108,7 @@ async function runAll (artifactsDir = RES_DIR) {
     const jwtToken = await auth.getJWTToken(options, signedJwt)
     process.env.JWT_TOKEN = jwtToken.access_token
   }
-  const testsWithOauth = Object.entries(repositories).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
+  const testsWithOauth = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
   if (testsWithOauth.length > 0) {
     console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
     checkEnv(['OAUTH_TOKEN_ACTION_URL', 'OAUTH_CLIENTID'])
@@ -104,9 +116,9 @@ async function runAll (artifactsDir = RES_DIR) {
     process.env.OAUTH_TOKEN = oauthToken.access_token
   }
 
-  Object.keys(repositories).forEach(k => {
+  Object.keys(repositoriesJson).forEach(k => {
     try {
-      const params = repositories[k]
+      const params = repositoriesJson[k]
       if (params.disabled) {
         console.log(`skipping e2e test for ${k} (disabled)`)
       } else {

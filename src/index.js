@@ -11,9 +11,11 @@ governing permissions and limitations under the License.
 */
 
 const { runAll } = require('./run')
+const repositoriesJson = require('../repositories.json')
+
 require('dotenv').config() // load .env if available
 
-runAll()
+runAll(repositoriesJson)
   .catch(e => {
     console.error(e)
     // eslint-disable-next-line no-process-exit

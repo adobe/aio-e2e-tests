@@ -14,8 +14,52 @@ const {
   runOne,
   runAll
 } = require('../src/run')
+const execa = require('execa')
+
+jest.mock('execa')
+jest.mock('fs-extra')
+
+const ORIGINAL_ENV = process.env
+
+beforeEach(() => {
+  process.exit = jest.fn()
+  process.chdir = jest.fn()
+  jest.resetModules()
+  process.env = { ...ORIGINAL_ENV }
+})
+
+afterEach(() => {
+  process.exit.mockReset()
+  process.chdir.mockReset()
+  process.env = ORIGINAL_ENV
+})
 
 test('exports', () => {
   expect(typeof runOne).toEqual('function')
   expect(typeof runAll).toEqual('function')
+})
+
+test('runOne', () => {
+  process.env = { ...ORIGINAL_ENV, foo: 'bar' }
+
+  const name = 'my-repo'
+  const params = {
+    requiredEnv: ['foo'],
+    mapEnv: { foo: 'foo-alternate' },
+    repository: 'https://my-repo',
+    branch: 'main'
+  }
+  const execaOptions = { stderr: 'inherit' }
+  expect(() => runOne(name, params)).not.toThrow()
+  expect(execa.sync).toHaveBeenCalledWith('git', ['clone', params.repository, name], execaOptions)
+  expect(process.chdir).toHaveBeenCalledWith(name)
+  expect(execa.sync).toHaveBeenCalledWith('git', ['checkout', params.branch], execaOptions)
+  expect(execa.sync).toHaveBeenCalledWith('npm', ['install'], execaOptions)
+  expect(execa.sync).toHaveBeenCalledWith('npm', ['run', 'e2e'], execaOptions)
+  expect(process.chdir).toHaveBeenCalledWith('..')
+
+  expect(process.env['foo-alternate']).toEqual('bar')
+})
+
+test('runAll', () => {
 })
