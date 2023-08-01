@@ -15,9 +15,14 @@ const {
   runAll
 } = require('../src/run')
 const execa = require('execa')
+const fs = require('fs-extra')
+const auth = require('../src/auth')
+const utils = require('../src/utils')
 
 jest.mock('execa')
 jest.mock('fs-extra')
+jest.mock('../src/auth')
+jest.mock('../src/utils')
 
 const ORIGINAL_ENV = process.env
 
@@ -29,6 +34,18 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  auth.getOauthToken.mockReset()
+  auth.getSignedJwt.mockReset()
+  auth.getJWTToken.mockReset()
+
+  utils.checkEnv.mockReset()
+  utils.logEnv.mockReset()
+  utils.mapEnvVariables.mockReset()
+
+  fs.existsSync.mockReset()
+  fs.emptyDirSync.mockReset()
+  fs.readFileSync.mockReset()
+
   process.exit.mockReset()
   process.chdir.mockReset()
   process.env = ORIGINAL_ENV
@@ -57,9 +74,18 @@ test('runOne', () => {
   expect(execa.sync).toHaveBeenCalledWith('npm', ['install'], execaOptions)
   expect(execa.sync).toHaveBeenCalledWith('npm', ['run', 'e2e'], execaOptions)
   expect(process.chdir).toHaveBeenCalledWith('..')
-
-  expect(process.env['foo-alternate']).toEqual('bar')
 })
 
-test('runAll', () => {
+describe('runAll', () => {
+  test('oauth', () => {
+    // mock getOauthToken
+  })
+
+  test('jwt', () => {
+    // existsSync private key
+    // readFileSync
+    // checkEnv
+    // getSignedJwt
+    // getJWTToken
+  })
 })

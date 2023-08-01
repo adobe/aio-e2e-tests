@@ -70,7 +70,7 @@ function runOne (name, params) {
  * @param {string} [artifactsDir=.repos] the folder to create all run artifacts in
  */
 async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
-  console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositories).toString()} --`))
+  console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositoriesJson).toString()} --`))
   console.log()
 
   const failed = []
@@ -108,6 +108,7 @@ async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
     const jwtToken = await auth.getJWTToken(options, signedJwt)
     process.env.JWT_TOKEN = jwtToken.access_token
   }
+
   const testsWithOauth = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
   if (testsWithOauth.length > 0) {
     console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
@@ -134,8 +135,9 @@ async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
 
   // success
   console.log()
-  if (failed.length === 0) console.log(chalk.green.bold('-- all e2e tests ran successfully --'))
-  else {
+  if (failed.length === 0) {
+    console.log(chalk.green.bold('-- all e2e tests ran successfully --'))
+  } else {
     console.log(chalk.red(`-- some test(s) failed: ${chalk.bold(failed.toString())} --`))
     // eslint-disable-next-line no-process-exit
     process.exit(1)
