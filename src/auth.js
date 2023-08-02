@@ -1,5 +1,5 @@
 /*
-Copyright 2019 Adobe. All rights reserved.
+Copyright 2023 Adobe. All rights reserved.
 This file is licensed to you under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License. You may obtain a copy
 of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -18,6 +18,43 @@ const FormData = require('form-data')
 
 const JWT_EXPIRY_SECONDS = 1200 // 20 minutes
 
+/**
+ * Create a jwt payload.
+ *
+ * @param {object} options see getSignedJwt
+ * @param {number} millisecondsSinceEpoch the date in ms since epoch
+ * @returns {object} the payload
+ */
+function createJwtPayload (options, millisecondsSinceEpoch = Date.now()) {
+  let m = options.metaScopes
+  if (!Array.isArray(m)) {
+    m = m.split(',')
+  }
+
+  const metaScopes = {}
+  m.forEach(m => {
+    if (m.startsWith('https')) {
+      metaScopes[m] = true
+    } else {
+      metaScopes[`${options.ims}/s/${m}`] = true
+    }
+  })
+
+  return {
+    aud: `${options.ims}/c/${options.clientId}`,
+    exp: Math.round(JWT_EXPIRY_SECONDS + millisecondsSinceEpoch / 1000),
+    ...metaScopes,
+    iss: options.orgId,
+    sub: options.technicalAccountId
+  }
+}
+
+/**
+ * Gets an OAuth token.
+ *
+ * @param {string} actionURL the url to fetch the token from
+ * @returns {object} the token data
+ */
 async function getOauthToken (actionURL) {
   const postOptions = {
     method: 'POST'
@@ -36,8 +73,22 @@ async function getOauthToken (actionURL) {
   return json
 }
 
+/**
+ * Gets a signed JWT.
+ *
+ * @param {object} options all the options for generating the JWT
+ * @param {string} options.clientId the jwt client id
+ * @param {string} options.technicalAccountId the technical account id of the credential
+ * @param {string} options.orgId the org id of the credential
+ * @param {string} options.clientSecret the jwt client secret
+ * @param {string} options.privateKey the jwt private key
+ * @param {string} [options.passphrase=''] the passphrase for private key, if set
+ * @param {Array<string>} options.metaScopes all the metascopes for the services tied to the credential
+ * @param {string} [options.ims='https://ims-na1.adobelogin.com'] the IMS endpoint
+ * @returns {string} the signed jwt
+ */
 async function getSignedJwt (options) {
-  let {
+  const {
     clientId,
     technicalAccountId,
     orgId,
@@ -55,34 +106,23 @@ async function getSignedJwt (options) {
   } = options
 
   const errors = []
-  if (!clientId) errors.push('clientId')
-  if (!technicalAccountId) errors.push('technicalAccountId')
-  if (!orgId) errors.push('orgId')
-  if (!clientSecret) errors.push('clientSecret')
-  if (!privateKey)errors.push('privateKey')
-  if (!metaScopes || metaScopes.length === 0) errors.push('metaScopes')
+  if (!clientId) { errors.push('clientId') }
+  if (!technicalAccountId) { errors.push('technicalAccountId') }
+  if (!orgId) { errors.push('orgId') }
+  if (!clientSecret) { errors.push('clientSecret') }
+  if (!privateKey) { errors.push('privateKey') }
+  if (!metaScopes || metaScopes.length === 0) { errors.push('metaScopes') }
+  if (!ims) { errors.push('ims') }
   if (errors.length > 0) {
     throw new Error(`Required parameter(s) ${errors.join(', ')} are missing`)
   }
 
-  if (metaScopes.constructor !== Array) {
-    metaScopes = metaScopes.split(',')
-  }
-
-  const jwtPayload = {
-    exp: Math.round(JWT_EXPIRY_SECONDS + Date.now() / 1000),
-    iss: orgId,
-    sub: technicalAccountId,
-    aud: `${ims}/c/${clientId}`
-  }
-
-  for (let i = 0; i < metaScopes.length; i++) {
-    if (metaScopes[i].indexOf('https') > -1) {
-      jwtPayload[metaScopes[i]] = true
-    } else {
-      jwtPayload[`${ims}/s/${metaScopes[i]}`] = true
-    }
-  }
+  const jwtPayload = createJwtPayload({ // potentially add the defaults, to options
+    ...options,
+    passphrase,
+    metaScopes,
+    ims
+  })
 
   const token = jwt.sign(
     jwtPayload,
@@ -93,6 +133,16 @@ async function getSignedJwt (options) {
   return token
 }
 
+/**
+ * Gets an OAuth token by exchanging a JWT.
+ *
+ * @param {object} options the parameters to send to the jwt exchange endpoint
+ * @param {string} options.clientId the jwt client id
+ * @param {string} options.clientSecret the jwt client secret
+ * @param {string} [options.ims='https://ims-na1.adobelogin.com'] the IMS endpoint
+ * @param {string} signedJwt the signed JWT
+ * @returns {object} the access token
+ */
 async function getJWTToken (options, signedJwt) {
   const {
     clientId,
@@ -129,6 +179,8 @@ async function getJWTToken (options, signedJwt) {
 }
 
 module.exports = {
+  JWT_EXPIRY_SECONDS,
+  createJwtPayload,
   getSignedJwt,
   getJWTToken,
   getOauthToken
