@@ -62,7 +62,7 @@ jobs:
       run: |
         cd ffapp
 
-        ../bin/run app:install app.zip --output install-folder &> consoleoutput.txt
+        ../bin/run app:install dist/app.zip --output install-folder &> consoleoutput.txt
         grep "Install done." consoleoutput.txt
     - id: createext
       name: create app with extension
