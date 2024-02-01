@@ -11,15 +11,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: [16]
+        node-version: [18]
         os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node }}
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node }}
+        node-version: ${{ matrix.node-version }}
     - run: npm i --package-lock --package-lock-only
     - run: npm ci
     - name: Run E2E Tests
@@ -48,7 +48,7 @@ jobs:
       run: |
         git config user.name github-actions
         git config user.email github-actions@github.com
-        echo "- $(date) Node ${{ matrix.node }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
+        echo "- $(date) Node ${{ matrix.node-version }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
         git add logs/run.md
         git commit -m "generated"
         git push
@@ -56,12 +56,12 @@ jobs:
       if: ${{ success() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
       uses: codecov/codecov-action@v3.1.1
       with:
-        name: ${{ runner.os }} node.js ${{ matrix.node }}
+        name: ${{ runner.os }} node.js ${{ matrix.node-version }}
     - name: Slack Notification
       if: ${{ failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         SLACK_TITLE: 'Node version'
-        SLACK_MESSAGE: ${{ matrix.node }}
+        SLACK_MESSAGE: ${{ matrix.node-version }}
         SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'cancelled' && '#808080' || 'danger' }}
