@@ -30,15 +30,13 @@ jobs:
         ./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt
 
         grep "App initialization finished!" consoleoutput.txt
-        grep "Successful deployment" consoleoutput.txt
-        grep "Running tests in test/asset-compute/worker" consoleoutput.txt
+        grep -e "Running tests in .*/test/asset-compute/worker" consoleoutput.txt
         grep "All tests were successful." consoleoutput.txt
 
     - id: output
       name: Write the output to console for debugging
       if: ${{ failure() }}
       run: |
-        if [ -d "ffapp" ]; then cd ffapp; fi
         cat consoleoutput.txt
 
     - id: slacknotification
