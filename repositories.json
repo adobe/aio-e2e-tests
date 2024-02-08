@@ -14,7 +14,8 @@
     "requiredEnv": [ "CAMPAIGN_STANDARD_TENANT_ID", "CAMPAIGN_STANDARD_API_KEY", "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "CAMPAIGN_STANDARD_API_KEY", "JWT_TOKEN": "CAMPAIGN_STANDARD_ACCESS_TOKEN" },
-    "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ]
+    "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
+    "disabled": true
   },
 
   "aio-lib-analytics" : {
