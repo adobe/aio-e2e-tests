@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "chalk": "^2.4.2",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.3",
     "execa": "^2.1.0",
     "form-data": "^4.0.0",
     "fs-extra": "^8.1.0",
