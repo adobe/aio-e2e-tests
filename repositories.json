@@ -1,4 +1,12 @@
 {
+  "aio-cli-plugin-app-dev" : {
+    "repository": "https://github.com/adobe/aio-cli-plugin-app-dev",
+    "branch": "main",
+    "requiredEnv": [],
+    "mapEnv": {},
+    "doNotLog": []
+  },
+
   "aio-lib-target" : {
     "repository": "https://github.com/adobe/aio-lib-target",
     "branch": "master",
