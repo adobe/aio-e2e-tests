@@ -81,8 +81,8 @@
   "aio-cli-plugin-app-storage" : {
     "repository": "https://github.com/adobe/aio-cli-plugin-app-storage",
     "branch": "master",
-    "requiredEnv": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_NAMESPACE_AUTH"],
-    "mapEnv": { "RUNTIME_NAMESPACE": "AIO_RUNTIME_NAMESPACE" , "RUNTIME_AUTH": "AIO_RUNTIME_NAMESPACE_AUTH" },
-    "doNotLog": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_NAMESPACE_AUTH" ]
+    "requiredEnv": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_AUTH"],
+    "mapEnv": { "RUNTIME_NAMESPACE": "AIO_RUNTIME_NAMESPACE" , "RUNTIME_AUTH": "AIO_RUNTIME_AUTH" },
+    "doNotLog": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_AUTH" ]
   }
 }
