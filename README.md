@@ -5,6 +5,7 @@ E2e tests for Adobe I/O SDKs and tools.
 ## Requirements
 
 Each tested repository has its own requirements, mostly environment variables to be set.
+Tests are run against [an internal Adobe Console Project](https://developer.adobe.com/console/projects/53444/4566206088344607082).
 
 ## Run
 
