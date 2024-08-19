@@ -76,6 +76,13 @@
     "requiredAuth": "jwt",
     "mapEnv": { "JWT_CLIENTID": "CUSTOMER_PROFILE_API_API_KEY" , "JWT_TOKEN": "CUSTOMER_PROFILE_API_ACCESS_TOKEN", "JWT_ORG_ID": "CUSTOMER_PROFILE_API_IMS_ORG_ID" },
     "doNotLog": [ "CUSTOMER_PROFILE_API_ACCESS_TOKEN" ]
-  }
+  },
 
+  "aio-cli-plugin-app-storage" : {
+    "repository": "https://github.com/adobe/aio-cli-plugin-app-storage",
+    "branch": "master",
+    "requiredEnv": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_AUTH"],
+    "mapEnv": { "RUNTIME_NAMESPACE": "AIO_RUNTIME_NAMESPACE" , "RUNTIME_AUTH": "AIO_RUNTIME_AUTH" },
+    "doNotLog": [ "AIO_RUNTIME_NAMESPACE", "AIO_RUNTIME_AUTH" ]
+  }
 }
