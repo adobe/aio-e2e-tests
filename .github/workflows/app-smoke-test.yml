@@ -2,6 +2,11 @@ name: App Plugin smoke test (init, build and deploy)
 
 on:
   workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'Branch name to checkout'
+        required: false
+        default: 'master'
   schedule:
     # run daily at midnight
     - cron: '15 0 * * *'
@@ -20,9 +25,10 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: Setup CLI
-      uses: actions/checkout@master
+      uses: actions/checkout@v3
       with:
           repository: adobe/aio-cli-plugin-app
+          ref: ${{ github.event.inputs.branch-name }}
     - name: Update package.json oclif.plugins
       uses: jossef/action-set-json-field@v2.1
       with:
