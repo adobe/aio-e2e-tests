@@ -43,15 +43,10 @@ jobs:
         RUNTIME_AUTH: ${{secrets.RUNTIME_AUTH}}
         CUSTOMER_PROFILE_API_TENANT_ID: ${{secrets.CUSTOMER_PROFILE_API_TENANT_ID}}
       run: npm run all
-    - name: Log to File
-      if: ${{ always() && (github.event_name == 'schedule') }}
-      run: |
-        git config user.name adobe-bot
-        git config user.email grp-opensourceoffice@adobe.com
-        echo "- $(date) Node ${{ matrix.node-version }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
-        git add logs/run.md
-        git commit -m "generated"
-        git push
+    - name: Avoid disabling after 60 days
+      uses: liskin/gh-workflow-keepalive@v1
+      permissions:
+        actions: write
     - name: Upload Coverage
       if: ${{ success() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
       uses: codecov/codecov-action@v3.1.1
