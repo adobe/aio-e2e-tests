@@ -22,7 +22,7 @@
   "author": "Adobe Inc.",
   "license": "Apache-2.0",
   "dependencies": {
-    "chalk": "^2.4.2",
+    "chalk": "^5.4.1",
     "dotenv": "^16.4.7",
     "execa": "^2.1.0",
     "form-data": "^4.0.0",
