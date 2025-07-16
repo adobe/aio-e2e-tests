@@ -39,10 +39,10 @@
   "aio-lib-events" : {
     "repository": "https://github.com/adobe/aio-lib-events",
     "branch": "master",
-    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
+    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_JWT_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
     "requiredAuth": "oauth_s2s",
-    "mapEnv": { "IMS_CLIENT_ID": "EVENTS_API_KEY" , "IMS_TOKEN": "EVENTS_TOKEN" },
-    "doNotLog": [ "EVENTS_TOKEN" ]
+    "mapEnv": { "IMS_CLIENT_ID": "EVENTS_API_KEY" , "IMS_TOKEN": "EVENTS_JWT_TOKEN" },
+    "doNotLog": [ "EVENTS_JWT_TOKEN" ]
   },
 
   "aio-lib-web" : {
