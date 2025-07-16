@@ -31,12 +31,7 @@ beforeEach(() => {
   process.chdir = jest.fn()
   jest.resetModules()
   process.env = { ...ORIGINAL_ENV }
-})
-
-afterEach(() => {
-  auth.getOauthToken.mockReset()
-  auth.getSignedJwt.mockReset()
-  auth.getJWTToken.mockReset()
+  auth.getAccessTokenByClientCredentials.mockReset()
 
   utils.checkEnv.mockReset()
   utils.logEnv.mockReset()
@@ -48,7 +43,6 @@ afterEach(() => {
 
   process.exit.mockReset()
   process.chdir.mockReset()
-  process.env = ORIGINAL_ENV
 })
 
 test('exports', () => {
@@ -77,29 +71,15 @@ test('runOne', () => {
 })
 
 describe('runAll', () => {
-  const oauthAccessToken = {
-    access_token: 'oauth-access-token'
+  const accessToken = {
+    access_token: 'ims-access-token'
   }
-  const oauthRepos = {
-    'an-oauth-repo': {
-      repository: 'https://github.com/adobe/an-oauth-repo',
-      branch: 'main',
-      requiredEnv: ['A', 'B', 'C'],
-      requiredAuth: 'oauth',
-      mapEnv: undefined, // for coverage
-      doNotLog: ['B']
-    }
-  }
-
-  const jwtAccessToken = {
-    access_token: 'jwt-access-token'
-  }
-  const jwtRepos = {
-    'a-jwt-repo': {
+  const oauthS2sRepos = {
+    'a-s2s-repo': {
       repository: 'https://github.com/adobe/a-jwt-repo',
       branch: 'main',
       requiredEnv: ['D', 'E', 'F'],
-      requiredAuth: 'jwt',
+      requiredAuth: 'oauth_s2s',
       mapEnv: {},
       doNotLog: ['F']
     }
@@ -116,40 +96,16 @@ describe('runAll', () => {
     }
   }
 
-  test('oauth repos', async () => {
-    auth.getOauthToken.mockResolvedValue(oauthAccessToken)
-    await expect(runAll(oauthRepos)).resolves.not.toThrow()
-    expect(process.env.OAUTH_TOKEN).toEqual(oauthAccessToken.access_token)
+  test('oauth s2s repos', async () => {
+    auth.getAccessTokenByClientCredentials.mockResolvedValue(accessToken)
+    await expect(runAll(oauthS2sRepos)).resolves.not.toThrow()
+    expect(process.env.IMS_TOKEN).toEqual(accessToken.access_token)
   })
 
-  test('jwt repos', async () => {
-    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
-    await expect(runAll(jwtRepos)).resolves.not.toThrow()
-    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
-    expect(process.env.JWT_PRIVATE_KEY).toBeUndefined()
-  })
-
-  test('jwt repos (read private key from file)', async () => {
-    const privateKey = 'a-private-key'
-
-    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
-    fs.existsSync.mockReturnValue(true)
-    fs.readFileSync.mockReturnValue(privateKey)
-
-    await expect(runAll(jwtRepos)).resolves.not.toThrow()
-    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
-    expect(process.env.JWT_PRIVATE_KEY).toEqual(privateKey)
-  })
-
-  test('jwt repos (use process.env.JWT_PRIVATE_KEY)', async () => {
-    const privateKey = 'a-private-key-2'
-
-    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
-    process.env.JWT_PRIVATE_KEY = privateKey
-
-    await expect(runAll(jwtRepos)).resolves.not.toThrow()
-    expect(process.env.JWT_TOKEN).toEqual(jwtAccessToken.access_token)
-    expect(process.env.JWT_PRIVATE_KEY).toEqual(privateKey)
+  test('oauth s2s repos, no mapenv coverage', async () => {
+    auth.getAccessTokenByClientCredentials.mockResolvedValue(accessToken)
+    await expect(runAll({ 'a-s2s-repo': { ...oauthS2sRepos['a-s2s-repo'], mapEnv: undefined } })).resolves.not.toThrow()
+    expect(process.env.IMS_TOKEN).toEqual(accessToken.access_token)
   })
 
   test('skip disabled repos', async () => {
@@ -165,9 +121,9 @@ describe('runAll', () => {
     execa.sync.mockImplementation(() => {
       throw new Error('some error')
     })
-    auth.getJWTToken.mockResolvedValue(jwtAccessToken)
+    auth.getAccessTokenByClientCredentials.mockResolvedValue(accessToken)
 
-    await expect(runAll(jwtRepos)).resolves.not.toThrow() // the exception is eaten
+    await expect(runAll(oauthS2sRepos)).resolves.not.toThrow() // the exception is eaten
     expect(process.exit).toHaveBeenCalledWith(1)
   })
 })

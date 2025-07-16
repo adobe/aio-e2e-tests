@@ -11,271 +11,56 @@ governing permissions and limitations under the License.
 */
 
 const {
-  JWT_EXPIRY_SECONDS,
-  createJwtPayload,
-  getSignedJwt,
-  getJWTToken,
-  getOauthToken
+  getAccessTokenByClientCredentials
 } = require('../src/auth')
-const jwt = require('jsonwebtoken')
 const fetch = require('node-fetch')
 
-jest.mock('jsonwebtoken')
 jest.mock('node-fetch', () => jest.fn())
 
 /** @private */
-function createResponsePromise ({ ok = true, status = 200, jsonReturnValue = {} }) {
+function createResponsePromise ({ ok = true, status = 200, jsonReturnValue = {}, textReturnValue = '' }) {
   return Promise.resolve({
     ok,
     status,
-    json: () => jsonReturnValue
+    json: () => jsonReturnValue,
+    text: () => textReturnValue
   })
 }
 
 test('exports', () => {
-  expect(typeof getSignedJwt).toEqual('function')
-  expect(typeof getJWTToken).toEqual('function')
-  expect(typeof getOauthToken).toEqual('function')
-  expect(JWT_EXPIRY_SECONDS).toBeGreaterThan(0)
+  expect(typeof getAccessTokenByClientCredentials).toEqual('function')
 })
 
-describe('getSignedJwt', () => {
-  const defaultOptions = {
-    clientId: 'some-client-id',
-    technicalAccountId: 'some-technical-account-id',
-    orgId: 'some-org',
-    clientSecret: 'some-secret',
-    privateKey: 'my-private-key-123'
-  }
+describe('getAccessTokenByClientCredentials', () => {
+  const defaultArgs = [
+    'prod',
+    'some-client-id',
+    'some-client-secret',
+    'some-org-id',
+    'scopes,a,b,c'
+  ]
 
-  const optionDefaults = {
-    metaScopes: [
-      'https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
-      'https://ims-na1.adobelogin.com/s/ent_marketing_sdk',
-      'https://ims-na1.adobelogin.com/s/ent_campaign_sdk',
-      'https://ims-na1.adobelogin.com/s/ent_adobeio_sdk',
-      'https://ims-na1.adobelogin.com/s/ent_audiencemanagerplatform_sdk'
-    ],
-    ims: 'https://ims-na1.adobelogin.com',
-    passphrase: ''
-  }
-
-  const token = 'abc123'
-  const algorithm = 'RS256'
-  const nowDateMs = new Date('2023-07-31T15:55:24.408Z').valueOf()
-  let dateNowSpy
-
-  beforeEach(() => {
-    jwt.sign.mockReturnValue(token)
-    dateNowSpy = jest.spyOn(Date, 'now')
-      .mockImplementation(() =>
-        nowDateMs
-      )
-  })
-
-  afterEach(() => {
-    jwt.sign.mockReset()
-    dateNowSpy.mockReset()
-  })
-
-  test('required parameters missing', async () => {
-    const options = {}
-    return expect(getSignedJwt(options)).rejects.toThrow('Required parameter(s) clientId, technicalAccountId, orgId, clientSecret, privateKey are missing')
+  test('bad env', async () => {
+    const args = [...defaultArgs]
+    args[0] = 'bad env'
+    return expect(getAccessTokenByClientCredentials(...args)).rejects.toThrow('IMS_ENV must be one of "stage,prod"')
   })
 
   test('set all valid parameters', async () => {
-    const options = {
-      ...defaultOptions,
-      metaScopes: ['https://ims-na1.adobelogin.com/s/ent_campaign_sdk'],
-      ims: 'https://ims'
-    }
-
-    const jwtPayload = createJwtPayload(options, nowDateMs)
-
-    await expect(getSignedJwt(options)).resolves.toEqual(token)
-    expect(jwt.sign).toHaveBeenCalledWith(
-      jwtPayload,
-      {
-        key: options.privateKey,
-        passphrase: optionDefaults.passphrase
-      },
-      {
-        algorithm
-      }
-    )
-  })
-
-  test('metascopes as a csv', async () => {
-    const options = {
-      ...defaultOptions,
-      metaScopes: 'https://ims-na1.adobelogin.com/s/ent_campaign_sdk,https://ims-na1.adobelogin.com/s/ent_analytics_bulk_ingest_sdk',
-      ims: 'https://ims'
-    }
-
-    const jwtPayload = createJwtPayload(options, nowDateMs)
-
-    await expect(getSignedJwt(options)).resolves.toEqual(token)
-    expect(jwt.sign).toHaveBeenCalledWith(
-      jwtPayload,
-      {
-        key: options.privateKey,
-        passphrase: optionDefaults.passphrase
-      },
-      {
-        algorithm
-      }
-    )
-  })
-
-  test('metascopes empty array, ims empty string', async () => {
-    const options = {
-      ...defaultOptions,
-      metaScopes: [],
-      ims: ''
-    }
-
-    await expect(getSignedJwt(options)).rejects.toThrow('Required parameter(s) metaScopes, ims are missing')
-  })
-
-  test('metascopes not https', async () => {
-    const options = {
-      ...defaultOptions,
-      metaScopes: 'ent_campaign_sdk,ent_analytics_bulk_ingest_sdk',
-      ims: 'https://ims'
-    }
-
-    const jwtPayload = createJwtPayload(options, nowDateMs)
-
-    await expect(getSignedJwt(options)).resolves.toEqual(token)
-    expect(jwt.sign).toHaveBeenCalledWith(
-      jwtPayload,
-      {
-        key: options.privateKey,
-        passphrase: optionDefaults.passphrase
-      },
-      {
-        algorithm
-      }
-    )
-  })
-
-  test('set all valid parameters (use defaults)', async () => {
-    const jwtPayload = createJwtPayload({
-      ...defaultOptions,
-      ...optionDefaults
-    }, nowDateMs)
-
-    await expect(getSignedJwt(defaultOptions)).resolves.toEqual(token)
-    expect(jwt.sign).toHaveBeenCalledWith(
-      jwtPayload,
-      {
-        key: defaultOptions.privateKey,
-        passphrase: optionDefaults.passphrase
-      },
-      {
-        algorithm
-      }
-    )
-  })
-})
-
-describe('getJWTToken', () => {
-  const jwtSignOptions = {
-    clientId: 'some-client-id',
-    technicalAccountId: 'some-technical-account-id',
-    orgId: 'some-org',
-    clientSecret: 'some-secret',
-    privateKey: 'my-private-key-123'
-  }
-  const defaultOptions = {
-    clientId: 'some-client-id',
-    clientSecret: 'some-client-secret'
-  }
-  const signedJwtToken = 'abc123'
-
-  beforeEach(() => {
-    jwt.sign.mockReturnValue('some-token')
-  })
-
-  afterEach(() => {
-    jwt.sign.mockReset()
-    fetch.mockReset()
-  })
-
-  test('with signedJwt', async () => {
     const json = {
       access_token: 'xyz123456'
     }
-
     fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
-    await expect(getJWTToken(defaultOptions, signedJwtToken)).resolves.toEqual(json)
+    return expect(await getAccessTokenByClientCredentials(...defaultArgs)).toEqual(json)
   })
 
-  test('without signedJwt', async () => {
-    const options = {
-      ...jwtSignOptions,
-      ...defaultOptions
-    }
-    const json = {
-      access_token: 'xyz123456'
-    }
-
-    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
-    await expect(getJWTToken(options)).resolves.toEqual(json)
+  test('IMS 4xx', async () => {
+    fetch.mockImplementation(() => createResponsePromise({ textReturnValue: 'fake error', ok: false, status: 403 }))
+    await expect(getAccessTokenByClientCredentials(...defaultArgs)).rejects.toThrow('error response from IMS with status: 403 and body: fake error')
   })
 
-  test('exchange jwt, no access token and no error', async () => {
-    const json = {}
-
-    fetch.mockImplementation(() => createResponsePromise({ ok: false, status: 400, jsonReturnValue: json }))
-    await expect(getJWTToken(defaultOptions, signedJwtToken)).rejects.toThrow(
-      `An unknown error occurred while swapping jwt. The response is as follows: ${JSON.stringify(json)}`)
-  })
-
-  test('exchange jwt, no access token has error', async () => {
-    const json = {
-      error: 'my-error',
-      error_description: 'my-error-description'
-    }
-
-    fetch.mockImplementation(() => createResponsePromise({ ok: false, status: 400, jsonReturnValue: json }))
-    await expect(getJWTToken(defaultOptions, signedJwtToken)).rejects.toThrow(`${json.error}: ${json.error_description}`)
-  })
-})
-
-describe('getOauthToken', () => {
-  const actionUrl = 'https://some.server'
-  beforeEach(() => {
-  })
-
-  afterEach(() => {
-    fetch.mockReset()
-  })
-
-  test('no errors', async () => {
-    const json = {
-      access_token: 'xyz123456'
-    }
-
-    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
-    await expect(getOauthToken(actionUrl)).resolves.toEqual(json)
-  })
-
-  test('no access token, no error', async () => {
-    const json = {}
-
-    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
-    await expect(getOauthToken(actionUrl)).rejects.toThrow(
-      `An unknown error occurred fetching oauth token. The response is as follows: ${JSON.stringify(json)}`)
-  })
-
-  test('no access token, has error', async () => {
-    const json = {
-      error: 'my-error',
-      error_description: 'my-error-description'
-    }
-
-    fetch.mockImplementation(() => createResponsePromise({ jsonReturnValue: json }))
-    await expect(getOauthToken(actionUrl)).rejects.toThrow(`${json.error}: ${json.error_description}`)
+  test('fetch throws', async () => {
+    fetch.mockImplementation(() => { throw new Error('abc') })
+    await expect(getAccessTokenByClientCredentials(...defaultArgs)).rejects.toThrow('cannot send request to IMS: abc')
   })
 })

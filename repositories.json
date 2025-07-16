@@ -3,8 +3,8 @@
     "repository": "https://github.com/adobe/aio-lib-target",
     "branch": "master",
     "requiredEnv": [ "TARGET_TENANT", "TARGET_APIKEY", "TARGET_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "TARGET_APIKEY" , "JWT_TOKEN": "TARGET_TOKEN" },
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "TARGET_APIKEY" , "IMS_TOKEN": "TARGET_TOKEN" },
     "doNotLog": [ "TARGET_TOKEN" ]
   },
 
@@ -12,8 +12,8 @@
     "repository": "https://github.com/adobe/aio-lib-campaign-standard",
     "branch": "master",
     "requiredEnv": [ "CAMPAIGN_STANDARD_TENANT_ID", "CAMPAIGN_STANDARD_API_KEY", "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "CAMPAIGN_STANDARD_API_KEY", "JWT_TOKEN": "CAMPAIGN_STANDARD_ACCESS_TOKEN" },
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "CAMPAIGN_STANDARD_API_KEY", "IMS_TOKEN": "CAMPAIGN_STANDARD_ACCESS_TOKEN" },
     "doNotLog": [ "CAMPAIGN_STANDARD_ACCESS_TOKEN" ],
     "disabled": true
   },
@@ -22,8 +22,8 @@
     "repository": "https://github.com/adobe/aio-lib-analytics",
     "branch": "master",
     "requiredEnv": [ "ANALYTICS_COMPANY", "ANALYTICS_APIKEY", "ANALYTICS_TOKEN", "ANALYTICS_RSID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "ANALYTICS_APIKEY" , "JWT_TOKEN": "ANALYTICS_TOKEN" },
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "ANALYTICS_APIKEY" , "IMS_TOKEN": "ANALYTICS_TOKEN" },
     "doNotLog": [ "ANALYTICS_TOKEN" ]
   },
 
@@ -31,18 +31,18 @@
     "repository": "https://github.com/adobe/aio-lib-audience-manager-cd",
     "branch": "master",
     "requiredEnv": [ "AUDIENCE_MANAGER_ORG_ID", "AUDIENCE_MANAGER_API_KEY", "AUDIENCE_MANAGER_ACCESS_TOKEN", "AUDIENCE_MANAGER_ID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "AUDIENCE_MANAGER_API_KEY" , "JWT_TOKEN": "AUDIENCE_MANAGER_ACCESS_TOKEN", "JWT_ORG_ID": "AUDIENCE_MANAGER_ORG_ID" },
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "AUDIENCE_MANAGER_API_KEY" , "IMS_TOKEN": "AUDIENCE_MANAGER_ACCESS_TOKEN", "IMS_ORG_ID": "AUDIENCE_MANAGER_ORG_ID" },
     "doNotLog": [ "AUDIENCE_MANAGER_ACCESS_TOKEN" ]
   },
 
   "aio-lib-events" : {
     "repository": "https://github.com/adobe/aio-lib-events",
     "branch": "master",
-    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_JWT_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "EVENTS_API_KEY" , "JWT_TOKEN": "EVENTS_JWT_TOKEN" },
-    "doNotLog": [ "EVENTS_JWT_TOKEN" ]
+    "requiredEnv": [ "EVENTS_ORG_ID", "EVENTS_API_KEY", "EVENTS_TOKEN", "EVENTS_CONSUMER_ORG_ID", "EVENTS_WORKSPACE_ID", "EVENTS_PROJECT_ID", "EVENTS_INTEGRATION_ID"],
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "EVENTS_API_KEY" , "IMS_TOKEN": "EVENTS_TOKEN" },
+    "doNotLog": [ "EVENTS_TOKEN" ]
   },
 
   "aio-lib-web" : {
@@ -55,10 +55,8 @@
   "aio-lib-ims" : {
     "repository": "https://github.com/adobe/aio-lib-ims",
     "branch": "master",
-    "requiredEnv": [ "IMS_CLIENT_ID", "IMS_CLIENT_SECRET", "IMS_SIGNED_JWT" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "IMS_CLIENT_ID" , "JWT_CLIENT_SECRET": "IMS_CLIENT_SECRET", "JWT_SIGNED": "IMS_SIGNED_JWT" },
-    "doNotLog": [ "JWT_CLIENT_SECRET", "JWT_SIGNED" ]
+    "requiredEnv": [ "IMS_CLIENT_ID", "IMS_CLIENT_SECRET", "IMS_ORG_ID", "IMS_SCOPES" ],
+    "doNotLog": [ "IMS_CLIENT_SECRET", "IMS_TOKEN" ]
   },
 
   "aio-lib-runtime" : {
@@ -73,8 +71,8 @@
     "repository": "https://github.com/adobe/aio-lib-customer-profile",
     "branch": "master",
     "requiredEnv": [ "CUSTOMER_PROFILE_API_TENANT_ID", "CUSTOMER_PROFILE_API_IMS_ORG_ID", "CUSTOMER_PROFILE_API_API_KEY", "CUSTOMER_PROFILE_API_ACCESS_TOKEN" ],
-    "requiredAuth": "jwt",
-    "mapEnv": { "JWT_CLIENTID": "CUSTOMER_PROFILE_API_API_KEY" , "JWT_TOKEN": "CUSTOMER_PROFILE_API_ACCESS_TOKEN", "JWT_ORG_ID": "CUSTOMER_PROFILE_API_IMS_ORG_ID" },
+    "requiredAuth": "oauth_s2s",
+    "mapEnv": { "IMS_CLIENT_ID": "CUSTOMER_PROFILE_API_API_KEY" , "IMS_TOKEN": "CUSTOMER_PROFILE_API_ACCESS_TOKEN", "IMS_ORG_ID": "CUSTOMER_PROFILE_API_IMS_ORG_ID" },
     "doNotLog": [ "CUSTOMER_PROFILE_API_ACCESS_TOKEN" ]
   },
 

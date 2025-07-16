@@ -14,7 +14,7 @@ const execa = require('execa')
 const chalk = require('chalk').default
 const fs = require('fs-extra')
 const auth = require('./auth')
-const path = require('path')
+
 const { checkEnv, logEnv, mapEnvVariables } = require('./utils')
 
 const RES_DIR = '.repos'
@@ -67,7 +67,7 @@ function runOne (name, params) {
  * Run all the e2e tests.
  *
  * @param {object} repositoriesJson the data on all the repositories to run the tests on
- * @param {string} [artifactsDir=.repos] the folder to create all run artifacts in
+ * @param {string} [artifactsDir] the folder to create all run artifacts in
  */
 async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
   console.log(chalk.blue.bold(`-- e2e testing for ${Object.keys(repositoriesJson).toString()} --`))
@@ -78,43 +78,21 @@ async function runAll (repositoriesJson, artifactsDir = RES_DIR) {
   fs.emptyDirSync(artifactsDir)
   process.chdir(artifactsDir)
 
-  const testsWithJwt = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'jwt').map(([k, v]) => k)
-  if (testsWithJwt.length > 0) {
-    const jwtVars = ['JWT_CLIENTID', 'JWT_CLIENT_SECRET', 'JWT_PRIVATE_KEY', 'JWT_ORG_ID', 'JWT_TECH_ACC_ID']
+  const testWithOauthS2s = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth_s2s').map(([k, v]) => k)
+  if (testWithOauthS2s.length > 0) {
+    const s2sVars = ['IMS_CLIENT_ID', 'IMS_CLIENT_SECRET', 'IMS_ORG_ID', 'IMS_SCOPES']
 
-    console.log(chalk.dim(`tests '${testsWithJwt}' require jwt authentication`))
-    if (!process.env.JWT_PRIVATE_KEY) {
-      console.log('no private key set in env as JWT_PRIVATE_KEY')
-      const privateKeyFile = path.join(startDir, 'env.key')
-      if (fs.existsSync(privateKeyFile)) {
-        // file may exist in CI env
-        console.log(`found key file ${privateKeyFile}`)
-        const pKey = fs.readFileSync(privateKeyFile)
-        process.env.JWT_PRIVATE_KEY = pKey
-      } else {
-        console.log(`no key file ${privateKeyFile} found`)
-      }
-    }
-    checkEnv(jwtVars)
-    const options = {
-      clientId: process.env.JWT_CLIENTID,
-      technicalAccountId: process.env.JWT_TECH_ACC_ID,
-      orgId: process.env.JWT_ORG_ID,
-      clientSecret: process.env.JWT_CLIENT_SECRET,
-      privateKey: process.env.JWT_PRIVATE_KEY
-    }
-    const signedJwt = await auth.getSignedJwt(options)
-    process.env.JWT_SIGNED = signedJwt
-    const jwtToken = await auth.getJWTToken(options, signedJwt)
-    process.env.JWT_TOKEN = jwtToken.access_token
-  }
+    console.log(chalk.dim(`tests '${testWithOauthS2s}' require oauth s2s credentials`))
 
-  const testsWithOauth = Object.entries(repositoriesJson).filter(([k, v]) => !v.disabled && v.requiredAuth === 'oauth').map(([k, v]) => k)
-  if (testsWithOauth.length > 0) {
-    console.log(chalk.dim(`tests '${testsWithOauth}' require OAuth`))
-    checkEnv(['OAUTH_TOKEN_ACTION_URL', 'OAUTH_CLIENTID'])
-    const oauthToken = await auth.getOauthToken(process.env.OAUTH_TOKEN_ACTION_URL)
-    process.env.OAUTH_TOKEN = oauthToken.access_token
+    checkEnv(s2sVars)
+    const res = await auth.getAccessTokenByClientCredentials(
+      process.env.IMS_ENV || 'prod',
+      process.env.IMS_CLIENT_ID,
+      process.env.IMS_CLIENT_SECRET,
+      process.env.IMS_ORG_ID,
+      process.env.IMS_SCOPES
+    )
+    process.env.IMS_TOKEN = res.access_token
   }
 
   Object.keys(repositoriesJson).forEach(k => {
