@@ -24,11 +24,11 @@ jobs:
     - run: npm ci
     - name: Run E2E Tests
       env:
-        JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
-        JWT_CLIENTID: ${{ secrets.JWT_CLIENTID }}
-        JWT_TECH_ACC_ID: ${{ secrets.JWT_TECH_ACC_ID }}
-        JWT_ORG_ID: ${{ secrets.JWT_ORG_ID }}
-        JWT_CLIENT_SECRET: ${{ secrets.JWT_CLIENT_SECRET }}
+        IMS_CLIENT_ID: ${{ secrets.IMS_CLIENT_ID }}
+        IMS_ORG_ID: ${{ secrets.IMS_ORG_ID }}
+        IMS_CLIENT_SECRET: ${{ secrets.IMS_CLIENT_SECRET }}
+        IMS_SCOPES: ${{ secrets.IMS_SCOPES }}
+        IMS_ENV: prod
         TARGET_TENANT: ${{ secrets.TARGET_TENANT }}
         CAMPAIGN_STANDARD_TENANT_ID: ${{ secrets.CAMPAIGN_STANDARD_TENANT_ID }}
         ANALYTICS_COMPANY: ${{ secrets.ANALYTICS_COMPANY }}
