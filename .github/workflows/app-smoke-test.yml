@@ -40,12 +40,14 @@ jobs:
       uses: adobe/aio-apps-action@3.3.0
       with:
         os: ${{ matrix.os }}
-        command: auth
-        CLIENTID: ${{ secrets.JWT_CLIENTID }}
-        CLIENTSECRET: ${{ secrets.JWT_CLIENT_SECRET }}
-        TECHNICALACCOUNTID: ${{ secrets.JWT_TECH_ACC_ID }}
-        IMSORGID: ${{ secrets.JWT_ORG_ID }}
-        KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+        command: oauth_sts
+        CLIENTID: ${{ secrets.IMS_CLIENTID }}
+        CLIENTSECRET: ${{ secrets.OMS_CLIENT_SECRET }}
+        IMSORGID: ${{ secrets.IMS_ORG_ID }}
+        # we are using dummy values as they are not needed to generate oauth_s2s tokens
+        # see https://github.com/adobe/aio-lib-ims-oauth/issues/114
+        TECHNICALACCOUNTID: dummy_id
+        TECHNICALACCOUNTEMAIL: dummy_email
     - id: create
       name: create app with no extensions
       run: |
