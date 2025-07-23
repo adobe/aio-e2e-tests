@@ -42,7 +42,7 @@ jobs:
         os: ${{ matrix.os }}
         command: oauth_sts
         CLIENTID: ${{ secrets.IMS_CLIENTID }}
-        CLIENTSECRET: ${{ secrets.OMS_CLIENT_SECRET }}
+        CLIENTSECRET: ${{ secrets.IMS_CLIENT_SECRET }}
         IMSORGID: ${{ secrets.IMS_ORG_ID }}
         SCOPES: ${{ secrets.IMS_SCOPES }}
         # we are using dummy values as they are not needed to generate oauth_s2s tokens
