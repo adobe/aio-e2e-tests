@@ -44,6 +44,7 @@ jobs:
         CLIENTID: ${{ secrets.IMS_CLIENTID }}
         CLIENTSECRET: ${{ secrets.OMS_CLIENT_SECRET }}
         IMSORGID: ${{ secrets.IMS_ORG_ID }}
+        SCOPES: ${{ secrets.IMS_SCOPES }}
         # we are using dummy values as they are not needed to generate oauth_s2s tokens
         # see https://github.com/adobe/aio-lib-ims-oauth/issues/114
         TECHNICALACCOUNTID: dummy_id
