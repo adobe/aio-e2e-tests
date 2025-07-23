@@ -41,7 +41,7 @@ jobs:
       with:
         os: ${{ matrix.os }}
         command: oauth_sts
-        CLIENTID: ${{ secrets.IMS_CLIENTID }}
+        CLIENTID: ${{ secrets.IMS_CLIENT_ID }}
         CLIENTSECRET: ${{ secrets.IMS_CLIENT_SECRET }}
         IMSORGID: ${{ secrets.IMS_ORG_ID }}
         SCOPES: ${{ secrets.IMS_SCOPES }}
