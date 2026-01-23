@@ -1,0 +1,4 @@
+Installing app from dist/app.zip...
+✔ Extracted app to install-folder
+✔ Installed dependencies
+Install done.

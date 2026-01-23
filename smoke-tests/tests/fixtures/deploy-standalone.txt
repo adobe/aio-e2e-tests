@@ -1,0 +1,33 @@
+Creating project from template @adobe/generator-app-excshell
+? Select components to include
+✔ Actions: Deploy Runtime actions
+✔ Web Assets: Deploy hosted static assets
+? Which Adobe I/O App features do you want to enable for this project?
+✔ Actions
+✔ Events
+✔ Web Assets
+
+App initialization finished!
+
+Next steps:
+  $ cd myapp
+  $ aio app run
+
+Building actions...
+✔ Built 2 action(s) for 'ffapp'
+
+Deploying actions...
+✔ Deployed 2 action(s) for 'ffapp'
+
+Your deployed actions:
+  -> https://adobeioruntime.net/api/v1/web/ffapp/generic
+  -> https://adobeioruntime.net/api/v1/web/ffapp/publish-events
+
+Building web assets...
+✔ Built web assets
+
+Deploying web assets...
+✔ Deployed web assets to https://12345-namespace.adobeio-static.net/index.html
+
+Well done, your app is now online 🏄
+Successful deployment

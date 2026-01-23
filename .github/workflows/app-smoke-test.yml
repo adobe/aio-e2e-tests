@@ -7,6 +7,7 @@ on:
         description: 'Branch name to checkout'
         required: false
         default: 'master'
+  pull_request:
   schedule:
     # run daily at midnight
     - cron: '15 0 * * *'
@@ -17,25 +18,34 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x, 24.x]
         os: [ubuntu-latest]
 
     steps:
+    - name: Checkout e2e-tests repo (for scripts)
+      uses: actions/checkout@v3
+      with:
+        path: e2e-tests
+
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+
     - name: Setup CLI
       uses: actions/checkout@v3
       with:
           repository: adobe/aio-cli-plugin-app
           ref: ${{ github.event.inputs.branch-name }}
+          path: aio-cli-plugin-app
+
     - name: Update package.json oclif.plugins
       uses: jossef/action-set-json-field@v2.1
       with:
-        file: package.json
+        file: aio-cli-plugin-app/package.json
         field: oclif.plugins
         value: "[\"@adobe/aio-cli-plugin-app-templates\"]"
         parse_json: true
+
     - name: Auth
       uses: adobe/aio-apps-action@3.3.0
       with:
@@ -49,69 +59,48 @@ jobs:
         # see https://github.com/adobe/aio-lib-ims-oauth/issues/114
         TECHNICALACCOUNTID: dummy_id
         TECHNICALACCOUNTEMAIL: dummy_email
+
     - id: create
-      name: create app with no extensions
-      run: |
-        npm i @adobe/aio-cli-plugin-app-templates
-        npm i
-        mkdir ffapp
-        cd ffapp
+      name: Create app with no extensions
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/smoke-tests/create-app.js
+      env:
+        AIO_RUNTIME_AUTH: ${{ secrets.RUNTIME_AUTH }}
+        AIO_RUNTIME_NAMESPACE: ${{ secrets.RUNTIME_NAMESPACE }}
 
-        ../bin/run app:init . -y --no-login --standalone-app > consoleoutput.txt
-        grep "App initialization finished" consoleoutput.txt
-
-        echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
-        echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
-
-        ../bin/run app:deploy >> consoleoutput.txt
-        grep "Your deployed actions:" consoleoutput.txt
-        grep "api/v1/web/ffapp/generic" consoleoutput.txt
-        grep "/api/v1/web/ffapp/publish-events" consoleoutput.txt
-        grep ".adobeio-static.net/index.html" consoleoutput.txt
-        grep "Successful deployment" consoleoutput.txt
     - id: app_pack
-      name: pack an app (uses previous created app)
-      run: |
-        cd ffapp
+      name: Pack an app (uses previous created app)
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/smoke-tests/pack.js
 
-        ../bin/run app:pack &> consoleoutput.txt
-        grep "Packaging done." consoleoutput.txt
     - id: app_install
-      name: install an app (uses previous packed app)
-      run: |
-        cd ffapp
+      name: Install an app (uses previous packed app)
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/smoke-tests/install.js
 
-        ../bin/run app:install dist/app.zip --output install-folder &> consoleoutput.txt
-        grep "Install done." consoleoutput.txt
     - id: createext
-      name: create app with extension
-      run: |
-        rm -rf ffapp
-        mkdir ffapp
-        cd ffapp
-
-        ../bin/run app:init . -y --no-login --extension dx/excshell/1 > consoleoutput.txt
-        grep "App initialization finished" consoleoutput.txt
-
-        echo AIO_RUNTIME_AUTH=${{secrets.RUNTIME_AUTH}} > .env
-        echo AIO_RUNTIME_NAMESPACE=${{secrets.RUNTIME_NAMESPACE}} >> .env
-
-        ../bin/run app:deploy --no-publish >> consoleoutput.txt
-        grep "Your deployed actions:" consoleoutput.txt
-        grep "api/v1/web/dx-excshell-1/generic" consoleoutput.txt
-        grep ".adobeio-static.net/index.html" consoleoutput.txt
-        grep "Successful deployment" consoleoutput.txt
+      name: Create app with extension
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/smoke-tests/create-app-extension.js
+      env:
+        AIO_RUNTIME_AUTH: ${{ secrets.RUNTIME_AUTH }}
+        AIO_RUNTIME_NAMESPACE: ${{ secrets.RUNTIME_NAMESPACE }}
 
     - id: output
       name: Write the output to console for debugging
       if: ${{ failure() }}
+      working-directory: aio-cli-plugin-app
       run: |
-        if [ -d "ffapp" ]; then cd ffapp; fi
-        cat consoleoutput.txt
+        if [ -d "ffapp" ]; then
+          echo "=== Console output from ffapp/consoleoutput.txt ==="
+          cat ffapp/consoleoutput.txt
+        else
+          echo "ffapp directory not found"
+        fi
 
     - id: slacknotification
       name: Slack Notification
-      if: ${{ failure() }}
+      if: ${{ failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

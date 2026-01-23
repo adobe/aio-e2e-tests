@@ -11,13 +11,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [18]
+        node-version: [20.x, 22.x, 24.x]
         os: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm i --package-lock --package-lock-only
@@ -48,7 +48,7 @@ jobs:
       run: |
         git config user.name adobe-bot
         git config user.email grp-opensourceoffice@adobe.com
-        echo "- $(date) Node ${{ matrix.node-version }} ${{ job.status == 'success' && '🎉 success' ||  job.status }}" >> logs/run.md
+        echo "- $(date) Node ${{ matrix.node-version }} ${{ job.status == 'success' && 'success' ||  job.status }}" >> logs/run.md
         git add logs/run.md
         git commit -m "generated"
         git push
