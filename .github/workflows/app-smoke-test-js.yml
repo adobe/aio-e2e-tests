@@ -1,0 +1,110 @@
+name: App Plugin smoke test (JavaScript version)
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'Branch name to checkout'
+        required: false
+        default: 'master'
+  # Uncomment to run on schedule alongside the original workflow
+  # schedule:
+  #   # run daily at midnight (15 minutes offset from original)
+  #   - cron: '30 0 * * *'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 1
+      matrix:
+        node-version: [18.x, 20.x]
+        os: [ubuntu-latest]
+
+    steps:
+    - name: Checkout e2e-tests repo (for scripts)
+      uses: actions/checkout@v3
+      with:
+        path: e2e-tests
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Setup CLI
+      uses: actions/checkout@v3
+      with:
+          repository: adobe/aio-cli-plugin-app
+          ref: ${{ github.event.inputs.branch-name }}
+          path: aio-cli-plugin-app
+
+    - name: Update package.json oclif.plugins
+      uses: jossef/action-set-json-field@v2.1
+      with:
+        file: aio-cli-plugin-app/package.json
+        field: oclif.plugins
+        value: "[\"@adobe/aio-cli-plugin-app-templates\"]"
+        parse_json: true
+
+    - name: Auth
+      uses: adobe/aio-apps-action@3.3.0
+      with:
+        os: ${{ matrix.os }}
+        command: oauth_sts
+        CLIENTID: ${{ secrets.IMS_CLIENT_ID }}
+        CLIENTSECRET: ${{ secrets.IMS_CLIENT_SECRET }}
+        IMSORGID: ${{ secrets.IMS_ORG_ID }}
+        SCOPES: ${{ secrets.IMS_SCOPES }}
+        # we are using dummy values as they are not needed to generate oauth_s2s tokens
+        # see https://github.com/adobe/aio-lib-ims-oauth/issues/114
+        TECHNICALACCOUNTID: dummy_id
+        TECHNICALACCOUNTEMAIL: dummy_email
+
+    - id: create
+      name: Create app with no extensions
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/.github/scripts/smoke-test.js create-app
+      env:
+        AIO_RUNTIME_AUTH: ${{ secrets.RUNTIME_AUTH }}
+        AIO_RUNTIME_NAMESPACE: ${{ secrets.RUNTIME_NAMESPACE }}
+
+    - id: app_pack
+      name: Pack an app (uses previous created app)
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/.github/scripts/smoke-test.js pack
+
+    - id: app_install
+      name: Install an app (uses previous packed app)
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/.github/scripts/smoke-test.js install
+
+    - id: createext
+      name: Create app with extension
+      working-directory: aio-cli-plugin-app
+      run: node ../e2e-tests/.github/scripts/smoke-test.js create-app-extension
+      env:
+        AIO_RUNTIME_AUTH: ${{ secrets.RUNTIME_AUTH }}
+        AIO_RUNTIME_NAMESPACE: ${{ secrets.RUNTIME_NAMESPACE }}
+
+    - id: output
+      name: Write the output to console for debugging
+      if: ${{ failure() }}
+      working-directory: aio-cli-plugin-app
+      run: |
+        if [ -d "ffapp" ]; then
+          echo "=== Console output from ffapp/consoleoutput.txt ==="
+          cat ffapp/consoleoutput.txt
+        else
+          echo "ffapp directory not found"
+        fi
+
+    - id: slacknotification
+      name: Slack Notification
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: 'Node version (JavaScript workflow)'
+        SLACK_MESSAGE: ${{ matrix.node-version }}
+        SLACK_COLOR: ${{ job.status }}
+
