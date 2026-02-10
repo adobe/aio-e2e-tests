@@ -7,9 +7,8 @@ on:
         description: 'Branch name to checkout'
         required: false
         default: 'master'
-  pull_request:
   schedule:
-    # run daily at midnight
+    # Run daily at midnight UTC
     - cron: '15 0 * * *'
 
 jobs:
@@ -47,7 +46,7 @@ jobs:
         parse_json: true
 
     - name: Auth
-      uses: adobe/aio-apps-action@3.3.0
+      uses: adobe/aio-apps-action@3.3.1
       with:
         os: ${{ matrix.os }}
         command: oauth_sts
