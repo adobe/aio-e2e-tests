@@ -2,6 +2,7 @@ name: Asset Compute smoke test (init, build and deploy)
 
 on:
   workflow_dispatch:
+  pull_request:
   schedule:
     # run daily at midnight
     - cron: '15 0 * * *'
@@ -12,36 +13,45 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x, 22.x, 24.x]
         os: [ubuntu-latest]
 
     steps:
+    - name: Checkout e2e-tests repo (for scripts)
+      uses: actions/checkout@v3
+      with:
+        path: e2e-tests
+
     - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+
     - name: Setup Asset Compute
       uses: actions/checkout@master
       with:
           repository: adobe/asset-compute-integration-tests
+          path: asset-compute-tests
+
     - id: create-asset-compute
       name: asset compute smoke integration test
-      run: |
-        npm i
-        ./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt
-
-        grep "App initialization finished!" consoleoutput.txt
-        grep -e "Running tests in .*/test/asset-compute/worker" consoleoutput.txt
-        grep "All tests were successful." consoleoutput.txt
+      working-directory: asset-compute-tests
+      run: node ../e2e-tests/smoke-tests/asset-compute.js
 
     - id: output
       name: Write the output to console for debugging
       if: ${{ failure() }}
+      working-directory: asset-compute-tests
       run: |
-        cat consoleoutput.txt
+        if [ -f "consoleoutput.txt" ]; then
+          echo "=== Console output from consoleoutput.txt ==="
+          cat consoleoutput.txt
+        else
+          echo "consoleoutput.txt not found"
+        fi
 
     - id: slacknotification
       name: Slack Notification
-      if: ${{ failure() }}
+      if: ${{ failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
