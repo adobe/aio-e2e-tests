@@ -1,0 +1,11 @@
+App initialization finished!
+
+  Asset Compute Worker Tests
+Running tests in /home/runner/work/asset-compute-integration-tests/test/asset-compute/worker
+    ✓ should process image correctly (1234ms)
+    ✓ should handle errors gracefully (567ms)
+    ✓ should validate input parameters (123ms)
+
+  3 passing (1926ms)
+
+All tests were successful.

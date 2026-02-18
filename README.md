@@ -7,9 +7,30 @@ E2e tests for Adobe I/O SDKs and tools.
 Each tested repository has its own requirements, mostly environment variables to be set.
 Tests are run against [an internal Adobe Console Project](https://developer.adobe.com/console/projects/53444/4566206088344607082).
 
-## Run
+## Running Tests
 
-`npm run all`
+### Full E2E Test Suite
+
+Run all e2e tests for all libraries:
+```bash
+npm run all
+```
+
+This executes `src/index.js` which runs e2e tests for all configured repositories.
+
+### Individual Smoke Tests (GitHub Actions)
+
+The smoke tests for `aio-cli-plugin-app` are run via GitHub Actions workflows using JavaScript scripts:
+
+- **App Plugin Smoke Test**: `.github/workflows/app-smoke-test.yml`
+  - Uses scripts from `.github/scripts/smoke-test.js`
+  - Tests: create app, pack, install, create with extension
+  
+- **Asset Compute Smoke Test**: `.github/workflows/asset-compute-smoke-test.yml`
+  - Uses scripts from `.github/scripts/smoke-test.js`
+  - Tests: Asset Compute integration
+
+These workflows can also be run locally (see `.github/scripts/README.md` for details).
 
 ## Tests
 
