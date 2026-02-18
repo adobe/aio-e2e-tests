@@ -13,7 +13,7 @@ try {
   runCommand('npm i');
 
   console.log('\n=== Step 2: Run Asset Compute tests ===');
-  runCommand('./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt');
+  runCommand('./node_modules/mocha/bin/mocha test/index.test.js > consoleoutput.txt 2>&1');
 
   console.log('\n=== Step 3: Verify test results ===');
   verifyOutput(outputFile, [

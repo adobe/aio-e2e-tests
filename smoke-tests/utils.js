@@ -168,7 +168,7 @@ function createAndDeployApp(options) {
     process.chdir(appDir);
 
     console.log(`\n=== Step ${stepNum++}: Initialize app ===`);
-    runCommand(`${binPath} ${initCommand} > consoleoutput.txt`);
+    runCommand(`${binPath} ${initCommand} > consoleoutput.txt 2>&1`);
     verifyOutput('consoleoutput.txt', ['App initialization finished']);
 
     console.log('\n=== Step 4: Configure environment ===');
@@ -177,7 +177,7 @@ function createAndDeployApp(options) {
     }
 
     console.log(`\n=== Step ${stepNum++}: Deploy app ===`);
-    runCommand(`${binPath} ${deployCommand} >> consoleoutput.txt`);
+    runCommand(`${binPath} ${deployCommand} >> consoleoutput.txt 2>&1`);
 
     // Verify deployment
     verifyOutput('consoleoutput.txt', verifyStrings);
