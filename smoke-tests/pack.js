@@ -12,7 +12,7 @@ const binPath = '../bin/run';
 try {
   console.log('=== Packing app ===');
   process.chdir(appDir);
-  runCommand(`${binPath} app:pack 2>&1 > consoleoutput.txt`);
+  runCommand(`${binPath} app:pack > consoleoutput.txt 2>&1`);
   verifyOutput('consoleoutput.txt', ['Packaging done.']);
   console.log('\nApp packing successful!');
 } catch (error) {
