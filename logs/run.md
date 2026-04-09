@@ -1240,3 +1240,4 @@
 - Mon Apr  6 00:58:20 UTC 2026 Node 20.x failure
 - Tue Apr  7 00:56:50 UTC 2026 Node 24.x failure
 - Wed Apr  8 00:57:16 UTC 2026 Node 20.x failure
+- Thu Apr  9 00:49:01 UTC 2026 Node 22.x failure
