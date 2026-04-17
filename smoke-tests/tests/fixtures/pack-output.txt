@@ -1,0 +1,3 @@
+Packaging your app...
+✔ Packaged app to dist/app.zip (size: 1.2 MB)
+Packaging done.
