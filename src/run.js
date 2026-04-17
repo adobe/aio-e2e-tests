@@ -53,13 +53,16 @@ function runOne (name, params) {
   console.log(chalk.dim(`    - cloning repo ${chalk.bold(repository)}..`))
   execa.sync('git', ['clone', repository, name], { stderr: 'inherit' })
   process.chdir(name)
-  console.log(chalk.dim(`    - checking out branch ${chalk.bold(branch)}..`))
-  execa.sync('git', ['checkout', branch], { stderr: 'inherit' })
-  console.log(chalk.dim('    - installing npm packages..'))
-  execa.sync('npm', ['install'], { stderr: 'inherit' })
-  console.log(chalk.bold('    - running tests..'))
-  execa.sync('npm', ['run', 'e2e'], { stderr: 'inherit' })
-  process.chdir('..')
+  try {
+    console.log(chalk.dim(`    - checking out branch ${chalk.bold(branch)}..`))
+    execa.sync('git', ['checkout', branch], { stderr: 'inherit' })
+    console.log(chalk.dim('    - installing npm packages..'))
+    execa.sync('npm', ['install'], { stderr: 'inherit' })
+    console.log(chalk.bold('    - running tests..'))
+    execa.sync('npm', ['run', 'e2e'], { stderr: 'inherit' })
+  } finally {
+    process.chdir('..')
+  }
   console.log(chalk.green(`    - done for ${chalk.bold(name)}`))
 }
 
