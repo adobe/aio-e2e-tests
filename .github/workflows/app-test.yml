@@ -5,6 +5,10 @@ on:
   schedule:
     # run daily at midnight
     - cron: '0 0 * * *'
+
+concurrency:
+  group: aio-e2e-tests-app-test-log
+  cancel-in-progress: false
     
 jobs:
   build:
@@ -48,12 +52,16 @@ jobs:
     - name: Log to File
       if: ${{ always() && (github.event_name == 'schedule') }}
       run: |
+        set -euo pipefail
         git config user.name adobe-bot
         git config user.email grp-opensourceoffice@adobe.com
+        git fetch origin master
+        git checkout master
+        git pull --rebase origin master
         echo "- $(date) Node ${{ matrix.node-version }} ${{ job.status == 'success' && 'success' ||  job.status }}" >> logs/run.md
         git add logs/run.md
-        git commit -m "generated"
-        git push
+        git commit -m "generated" || echo "Nothing to commit"
+        git push origin HEAD:master
     - name: Upload Coverage
       if: ${{ success() && (github.event_name == 'pull_request' || github.event_name == 'push') }}
       uses: codecov/codecov-action@v3.1.1
