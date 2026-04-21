@@ -55,7 +55,7 @@ jobs:
         set -euo pipefail
         git config user.name adobe-bot
         git config user.email grp-opensourceoffice@adobe.com
-        git restore --worktree --staged package-lock.json || git checkout -- package-lock.json || true
+        git restore --worktree --staged package-lock.json || git checkout -- package-lock.json
         git fetch origin master
         git checkout master
         git pull --rebase origin master
