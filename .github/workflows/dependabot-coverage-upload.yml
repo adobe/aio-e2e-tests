@@ -28,6 +28,6 @@ jobs:
   upload:
     needs: check
     if: needs.check.outputs.allowed == 'true'
-    uses: adobe/aio-reusable-workflows/.github/workflows/dependabot-coverage-upload.yml@dependabot-codecov-fix
+    uses: adobe/aio-reusable-workflows/.github/workflows/dependabot-coverage-upload.yml@main
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
