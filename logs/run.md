@@ -1301,3 +1301,4 @@
 - Thu May  7 01:16:09 UTC 2026 Node 22.x success
 - Thu May  7 01:19:48 UTC 2026 Node 24.x success
 - Fri May  8 01:05:49 UTC 2026 Node 20.x success
+- Fri May  8 01:10:02 UTC 2026 Node 22.x success
