@@ -51,9 +51,7 @@
     "repository": "https://github.com/adobe/aio-lib-web",
     "branch": "master",
     "requiredEnv": [ "RUNTIME_NAMESPACE", "RUNTIME_AUTH"],
-    "doNotLog": [ "RUNTIME_AUTH" ],
-    "disabled": true,
-    "disabledReason": "undeploy e2e expects 404 but CDN now returns 200 - upstream test needs update"
+    "doNotLog": [ "RUNTIME_AUTH" ]
   },
 
   "aio-lib-ims" : {
