@@ -1817,3 +1817,4 @@
 - Mon Oct 26 00:58:56 UTC 2026 Node 22.x failure
 - Mon Oct 26 01:04:12 UTC 2026 Node 24.x failure
 - Tue Oct 27 00:53:05 UTC 2026 Node 20.x failure
+- Tue Oct 27 00:58:44 UTC 2026 Node 22.x failure
